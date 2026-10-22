@@ -8,6 +8,7 @@ using namespace std;
 class WorkItemHistory {
     private:
         vector<WorkItemSnapshot*> history;
+        
     public:
         ~WorkItemHistory();
         void save(WorkItemSnapshot* snapshot);

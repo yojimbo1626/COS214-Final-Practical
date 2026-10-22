@@ -8,5 +8,5 @@ WorkItemSnapshot* WorkItem::createSnapshot() {
 
 void WorkItem::setSnapshot(WorkItemSnapshot* snapshot) {
     requests = snapshot->getRequests();
-    state = snapshot->getState();
+    setState(snapshot->getState());
 }

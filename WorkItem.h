@@ -1,4 +1,4 @@
-// ONLY MEMENTO ATTRIBUTES AND OPERATIONS DEFINED
+// ONLY MEMENTO ATTRIBUTES AND OPERATIONS DECLARED
 
 #ifndef WORK_ITEM
 #define WORK_ITEM
@@ -20,6 +20,9 @@ class WorkItem {
     public:
         WorkItemSnapshot* createSnapshot();
         void setSnapshot(WorkItemSnapshot* snapshot);
+
+    private:
+        void setState(WorkItemState* state);
 };
 
 #endif
