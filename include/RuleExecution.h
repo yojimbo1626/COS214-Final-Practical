@@ -8,7 +8,7 @@
  */
 class RuleExecution : public TaskExecutionStrategy {
 public:
-    std::string execute(WorkItem* w) override;
+    std::string execute(WorkItem* w);
 };
 
 #endif
