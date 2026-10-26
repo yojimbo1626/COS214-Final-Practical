@@ -35,7 +35,10 @@ bool Available::start(WorkItem* c) {
 /**
  * @brief Assigns the WorkItem to a Participant.
  *
- * Moves the WorkItem from Available to Assigned.
+ * Subscribes the Participant to the WorkItem (so it is notified of every
+ * change from now on), then moves the WorkItem from Available to Assigned.
+ * Because the Participant is subscribed first, it receives the
+ * "now Assigned" update too.
  *
  * @param c The WorkItem being assigned.
  * @param p The Participant receiving the work. Must not be null.
@@ -45,6 +48,7 @@ bool Available::assign(WorkItem* c, Participant* p) {
     if (c == nullptr || p == nullptr) {
         return false;
     }
+    c->addObserver(p);
     changeState(c, new Assigned());
     return true; // `this` has been deleted, so return immediately
 }
@@ -75,5 +79,5 @@ bool Available::cancel(WorkItem* c) {
         return false;
     }
     changeState(c, new Rejected());
-    return true; // this has been deleted, so return immediately
+    return true; // `this` has been deleted, so return immediately
 }

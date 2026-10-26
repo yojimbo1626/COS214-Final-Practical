@@ -1,15 +1,21 @@
 /**
  * @file WorkItem.cpp
- * @brief Implementation of WorkItem, the Context in the State pattern.
+ * @brief Implementation of WorkItem.
  *
- * Every request (start, assign, complete, cancel, process) is forwarded to
- * the current WorkItemState, which decides what happens and whether the
- * WorkItem moves to a new state.
+ * WorkItem plays two roles:
+ * - Context in the State pattern: every request (start, assign, complete,
+ *   cancel, process) is forwarded to the current WorkItemState, which decides
+ *   what happens and whether the WorkItem moves to a new state.
+ * - Subject and ConcreteSubject in the Observer pattern: it keeps a list of
+ *   Participants and pushes an update message to all of them whenever its
+ *   state changes (push model).
  */
 
 #include "WorkItem.h"
 #include "WorkItemState.h"
 #include "Available.h"
+#include "Participant.h"
+#include <algorithm>
 
 /**
  * @brief Creates a WorkItem in the Available state.
@@ -24,7 +30,8 @@ WorkItem::WorkItem(const std::string& name, const std::string& description)
  *
  * Copies the name and description. The copy always starts in the
  * Available state, because the states have no clone() method to copy
- * the original's current state.
+ * the original's current state. The copy starts with no observers:
+ * Participants subscribed to the original are not subscribed to the copy.
  *
  * @param workItem The WorkItem to copy.
  */
@@ -33,6 +40,8 @@ WorkItem::WorkItem(const WorkItem& workItem)
 
 /**
  * @brief Destroys the WorkItem and the state it owns.
+ *
+ * The observers are not deleted: the WorkItem does not own them.
  */
 WorkItem::~WorkItem() {
     delete state;
@@ -109,6 +118,7 @@ WorkItemState* WorkItem::getState() const {
  *
  * Private: only WorkItemState (through WorkItemState::changeState) may call it.
  * Does nothing if newState is null or already the current state.
+ * After the change, every observer is notified of the new state.
  *
  * @param newState The new state. The WorkItem takes ownership of it.
  */
@@ -119,4 +129,56 @@ void WorkItem::setState(WorkItemState* newState) {
     WorkItemState* old = state;
     state = newState;
     delete old;
+    notify();
+}
+
+/**
+ * @brief Subscribes a Participant to this WorkItem's updates.
+ *
+ * Ignores null pointers and Participants that are already subscribed,
+ * so nobody receives the same update twice.
+ *
+ * @param participant The Participant to subscribe. The WorkItem does not
+ *                    take ownership of it.
+ */
+void WorkItem::addObserver(Participant* participant) {
+    if (participant == nullptr) {
+        return;
+    }
+    if (std::find(observers.begin(), observers.end(), participant) != observers.end()) {
+        return;
+    }
+    observers.push_back(participant);
+}
+
+/**
+ * @brief Unsubscribes a Participant from this WorkItem's updates.
+ *
+ * Does nothing if the Participant is not subscribed.
+ *
+ * @param participant The Participant to unsubscribe. It is not deleted.
+ */
+void WorkItem::removeObserver(Participant* participant) {
+    std::vector<Participant*>::iterator it =
+        std::find(observers.begin(), observers.end(), participant);
+    if (it != observers.end()) {
+        observers.erase(it);
+    }
+}
+
+/**
+ * @brief Pushes an update message to every subscribed Participant.
+ *
+ * Push model: the message contains the WorkItem's name and current state,
+ * so observers get everything they need without querying the WorkItem.
+ *
+ * Loops over a copy of the observer list, so an observer can safely
+ * unsubscribe itself from inside receiveUpdate().
+ */
+void WorkItem::notify() {
+    std::string update = "WorkItem '" + name + "' is now " + state->process();
+    std::vector<Participant*> toNotify = observers;
+    for (std::vector<Participant*>::size_type i = 0; i < toNotify.size(); ++i) {
+        toNotify[i]->receiveUpdate(update);
+    }
 }

@@ -2,17 +2,14 @@
 #define WORKITEM_H
 
 #include <string>
+#include <vector>
 
 class WorkItemState;
 class Participant;
 
 /**
- * @class WorkItem
- * @brief Context in the State pattern.
- *
- * Owns its current state (deletes it on change and on destruction).
- * Only state-related members are stubbed here; requests, observers and
- * snapshot members from the full UML are left for their own patterns.
+ * @brief Context in the State pattern, and Subject / ConcreteSubject in the
+ *        Observer pattern.
  */
 class WorkItem {
 public:
@@ -23,7 +20,7 @@ public:
     std::string getName() const;
     std::string getDescription() const;
 
-    // Requests: each one forwards to the current state
+    // State requests: each one forwards to the current state
     bool start();
     bool assign(Participant* p);
     bool complete();
@@ -32,15 +29,21 @@ public:
 
     WorkItemState* getState() const;
 
+    // Observer
+    void addObserver(Participant* participant);
+    void removeObserver(Participant* participant);
+    void notify();
+
 private:
     friend class WorkItemState;          // only the base state may call setState
-    void setState(WorkItemState* state); // deletes the old state
+    void setState(WorkItemState* state); // deletes the old state, then notifies
 
     WorkItem& operator=(const WorkItem&); // disabled: owns a raw pointer
 
     std::string name;
     std::string description;
     WorkItemState* state;
+    std::vector<Participant*> observers;
 };
 
 #endif
