@@ -22,7 +22,7 @@
  * @param name        Short name of the WorkItem.
  * @param description Longer description of the work to be done.
  */
-WorkItem::WorkItem(const std::string& name, const std::string& description)
+WorkItem::WorkItem(std::string name, std::string description)
     : name(name), description(description), state(new Available()) {}
 
 /**
@@ -116,11 +116,13 @@ WorkItemState* WorkItem::getState() const {
 /**
  * @brief Replaces the current state and deletes the old one.
  *
- * Private: only WorkItemState (through WorkItemState::changeState) may call it.
- * Does nothing if newState is null or already the current state.
+ * Called by the concrete states when a transition happens. Does nothing if newState is null or already the current state.
  * After the change, every observer is notified of the new state.
  *
  * @param newState The new state. The WorkItem takes ownership of it.
+ *
+ * @warning The old state is deleted. When a concrete state calls this on
+ *          itself, it must return immediately afterwards.
  */
 void WorkItem::setState(WorkItemState* newState) {
     if (newState == nullptr || newState == state) {

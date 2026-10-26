@@ -24,11 +24,11 @@ std::string Available::process() {
  *
  * Not allowed: a WorkItem must be assigned before work can start.
  *
- * @param c The WorkItem (unused).
+ * @param s The WorkItem (unused).
  * @return Always false. The state does not change.
  */
-bool Available::start(WorkItem* c) {
-    (void)c;
+bool Available::start(WorkItem* s) {
+    (void)s;
     return false;
 }
 
@@ -40,17 +40,17 @@ bool Available::start(WorkItem* c) {
  * Because the Participant is subscribed first, it receives the
  * "now Assigned" update too.
  *
- * @param c The WorkItem being assigned.
+ * @param a The WorkItem being assigned.
  * @param p The Participant receiving the work. Must not be null.
- * @return true if the WorkItem moved to Assigned, false if c or p is null.
+ * @return true if the WorkItem moved to Assigned, false if a or p is null.
  */
-bool Available::assign(WorkItem* c, Participant* p) {
-    if (c == nullptr || p == nullptr) {
+bool Available::assign(WorkItem* a, Participant* p) {
+    if (a == nullptr || p == nullptr) {
         return false;
     }
-    c->addObserver(p);
-    changeState(c, new Assigned());
-    return true; // `this` has been deleted, so return immediately
+    a->addObserver(p);
+    a->setState(new Assigned());
+    return true; //  this  has been deleted, so return immediately
 }
 
 /**
@@ -78,6 +78,6 @@ bool Available::cancel(WorkItem* c) {
     if (c == nullptr) {
         return false;
     }
-    changeState(c, new Rejected());
-    return true; // `this` has been deleted, so return immediately
+    c->setState(new Rejected());
+    return true; //  this  has been deleted, so return immediately
 }

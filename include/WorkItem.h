@@ -13,7 +13,7 @@ class Participant;
  */
 class WorkItem {
 public:
-    WorkItem(const std::string& name, const std::string& description);
+    WorkItem(std::string name, std::string description);
     WorkItem(const WorkItem& workItem);
     ~WorkItem();
 
@@ -28,6 +28,7 @@ public:
     std::string process();
 
     WorkItemState* getState() const;
+    void setState(WorkItemState* state); // deletes the old state, then notifies
 
     // Observer
     void addObserver(Participant* participant);
@@ -35,11 +36,6 @@ public:
     void notify();
 
 private:
-    friend class WorkItemState;          // only the base state may call setState
-    void setState(WorkItemState* state); // deletes the old state, then notifies
-
-    WorkItem& operator=(const WorkItem&); // disabled: owns a raw pointer
-
     std::string name;
     std::string description;
     WorkItemState* state;
