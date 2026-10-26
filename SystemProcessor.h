@@ -1,33 +1,65 @@
-#ifndef SYSTEMPROCESSSOR_H
-#define SYSTEMPROCESSSOR_H
-#include <vector>
+#ifndef SYSTEMPROCESSOR_H
+#define SYSTEMPROCESSOR_H
 
 #include <string>
-#include "Worker.h"
-#include "WorkItem.h"
-#include "OutputRegistry.h"
-#include "OutputComponent.h"
-#include "WorkFlowController.h"
+#include "WorkflowProcessor.h"
 
-using namespace std;
+class WorkItem;
+class WorkflowController;
+class OutputRegistry;
+class Worker;
 
-class SystemProcessor{
+/**
+ * @class SystemProcessor
+ * @brief Facade: one simple entry point to the workflow subsystem.
+ *
+ * Callers talk to the SystemProcessor and it forwards the work to the
+ * WorkflowController (which runs the Command objects) behind the scenes.
+ */
+class SystemProcessor : public WorkflowProcessor {
 private:
-    WorkItem* workItem;
-    WorkflowController* workflowController;
-    OutputRegistry* outputRegistry;
+    WorkItem* workItem;                    
+    WorkflowController* workflowController; 
+    OutputRegistry* outputRegistry;        
+
 public:
+    /** @brief Creates a processor with no work item or controller yet. */
     SystemProcessor();
-    bool addRequest(string request);
-    void cancelWork();
+
+    /** @brief Destroys the processor and the controller it created. */
+    ~SystemProcessor();
+
+    /**
+     * @brief Adds a request to the current work item.
+     * @param request The request text.
+     * @return true on success, false if there is no active workflow or it failed.
+     */
+    bool addRequest(std::string request) override;
+
+    /**
+     * @brief Cancels the current work item. Does nothing if no workflow is active.
+     */
+    void cancelWork() override;
+
+    /**
+     * @brief Starts the workflow for the given work item.
+     * @param workItem The work item to run the workflow on.
+     * @return true if the workflow started, false otherwise.
+     */
     bool startWorkflow(WorkItem* workItem);
+
+    /**
+     * @brief Assigns the current work item to a worker.
+     * @param worker The worker taking the work item.
+     * @return true on success, false if there is no active workflow or it failed.
+     */
     bool assignWorkItem(Worker* worker);
+
+    /**
+     * @brief Marks the current work item as completed.
+     * @return true on success, false if there is no active workflow or it failed.
+     */
     bool completeWork();
-    vector<OutputComponent*> produceOutput();
-    void printStatus();
-    void setOutputRegistry(OutputRegistry* outputRegistry);
-    void saveWorkItemProgress();
-    void undoLastAction();
 };
 
 #endif
