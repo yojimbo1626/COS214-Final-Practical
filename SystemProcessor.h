@@ -1,7 +1,7 @@
 #ifndef SYSTEMPROCESSOR_H
 #define SYSTEMPROCESSOR_H
 
-#include <string>
+#include <iostream>
 #include "WorkflowProcessor.h"
 
 class WorkItem;
@@ -60,6 +60,20 @@ public:
      * @return true on success, false if there is no active workflow or it failed.
      */
     bool completeWork();
+
+    /**
+     * @brief Creates outputs for each request associated with the current work item.
+     * @return A vector of pointers to the created output components.
+     */
+    vector<OutputComponent*> produceOutput();
+
+    /**
+     * @brief Prints the current work item's details and status.
+     *
+     * Displays the work item's name, description, requests, client, and current
+     * state. If no work item is available, prints a message and returns.
+     */
+    void printStatus();
 };
 
 #endif
