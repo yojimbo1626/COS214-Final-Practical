@@ -7,6 +7,7 @@ class WorkItem;
 class Participant;
 
 /**
+ * @class WorkItemState
  * @brief Abstract State in the State pattern.
  *
  * Each request receives the Context (WorkItem) so the state can decide

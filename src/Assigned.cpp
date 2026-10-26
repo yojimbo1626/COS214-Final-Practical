@@ -12,7 +12,7 @@
 
 /**
  * @brief Returns the name of this state.
- * @return The string "Assigned".
+ * @return The string "Assigned" (state).
  */
 std::string Assigned::process() {
     return "Assigned";
@@ -31,7 +31,7 @@ bool Assigned::start(WorkItem* c) {
         return false;
     }
     changeState(c, new InProgress());
-    return true; // `this` has been deleted, so return immediately
+    return true; // this has been deleted so return
 }
 
 /**
@@ -41,7 +41,7 @@ bool Assigned::start(WorkItem* c) {
  *
  * @param c The WorkItem (unused).
  * @param p The Participant (unused).
- * @return Always false. The state does not change.
+ * @return Always false - state doesn't change because its already assigned
  */
 bool Assigned::assign(WorkItem* c, Participant* p) {
     (void)c;
@@ -75,5 +75,5 @@ bool Assigned::cancel(WorkItem* c) {
         return false;
     }
     changeState(c, new Rejected());
-    return true; // `this` has been deleted, so return immediately
+    return true; // this has been deleted, so return immediately
 }

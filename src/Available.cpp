@@ -75,5 +75,5 @@ bool Available::cancel(WorkItem* c) {
         return false;
     }
     changeState(c, new Rejected());
-    return true; // `this` has been deleted, so return immediately
+    return true; // this has been deleted, so return immediately
 }

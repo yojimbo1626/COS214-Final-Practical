@@ -4,6 +4,7 @@
 #include "WorkItemState.h"
 
 /**
+ * @class InProgress
  * @brief ConcreteState: InProgress.
  */
 class InProgress : public WorkItemState {

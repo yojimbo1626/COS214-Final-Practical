@@ -2,7 +2,11 @@
 #define REJECTED_H
 
 #include "WorkItemState.h"
-
+/**
+ * @class Rejected
+ * @brief ConcreteState: Rejected
+ * Final state
+ */
 class Rejected : public WorkItemState {
 public:
     std::string process();

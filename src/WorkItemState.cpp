@@ -23,7 +23,7 @@ WorkItemState::~WorkItemState() {}
  * @param next The new state. The WorkItem takes ownership of it.
  *
  * @warning The WorkItem deletes its previous state, which is usually the
- *          calling object (`this`). The caller must return immediately
+ *          calling object (this). The caller must return immediately
  *          after this call and must not touch any of its own members.
  */
 void WorkItemState::changeState(WorkItem* c, WorkItemState* next) {

@@ -4,7 +4,9 @@
 #include "WorkItemState.h"
 
 /**
+ * @class Completed
  * @brief ConcreteState: Completed.
+ * Final state
  */
 class Completed : public WorkItemState {
 public:

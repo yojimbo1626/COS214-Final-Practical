@@ -59,7 +59,7 @@ bool InProgress::complete(WorkItem* c) {
         return false;
     }
     changeState(c, new Completed());
-    return true; // `this` has been deleted, so return immediately
+    return true; // this has been deleted, so return immediately
 }
 
 /**

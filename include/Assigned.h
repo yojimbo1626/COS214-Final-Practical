@@ -7,8 +7,6 @@
  * @class Assigned
  * @brief ConcreteState: the WorkItem has a Participant but work hasn't started.
  *
- * Allowed: start() -> InProgress, cancel() -> Rejected. Everything else is refused.
- *
  */
 class Assigned : public WorkItemState {
 public:

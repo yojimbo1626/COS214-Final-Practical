@@ -4,6 +4,7 @@
 #include "WorkItemState.h"
 
 /**
+ * @class Created
  * @brief ConcreteState: Created.
  */
 class Created : public WorkItemState {

@@ -7,6 +7,7 @@ class WorkItemState;
 class Participant;
 
 /**
+ * @class WorkItem
  * @brief Context in the State pattern.
  *
  * Owns its current state (deletes it on change and on destruction).

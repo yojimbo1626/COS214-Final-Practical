@@ -4,7 +4,9 @@
 #include "WorkItemState.h"
 
 /**
- * @brief ConcreteState: Cancelled.
+ * @class Assigned
+ * @brief ConcreteState: Cancelled
+ *
  */
 class Cancelled : public WorkItemState {
 public:
