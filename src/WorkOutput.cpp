@@ -1,8 +1,14 @@
+/**
+ * @file WorkOutput.cpp
+ * @brief Implements WorkOutput.
+ */
+
 #include "WorkOutput.h"
 
-WorkOutput::WorkOutput(std::string name) : OutputComponent(name)
+WorkOutput::WorkOutput(const std::string& name)
+    : OutputComponent(name)
 {
-
+    //inline
 }
 
 WorkOutput::~WorkOutput()
@@ -10,14 +16,12 @@ WorkOutput::~WorkOutput()
 
 }
 
-std::string WorkOutput::printOutput()
+std::string WorkOutput::printOutput() const
 {
-
-    return "something"; //change later
+    return OutputComponent::printOutput();
 }
 
-OutputComponent* WorkOutput::clone()
+OutputComponent* WorkOutput::clone() const
 {
-
-    return nullptr; //change pointer later with impl
+    return new WorkOutput(*this); //clone deep copy
 }

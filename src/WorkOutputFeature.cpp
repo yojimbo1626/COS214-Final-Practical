@@ -1,28 +1,34 @@
+/**
+ * @file WorkOutputFeature.cpp
+ * @brief Implements WorkOutputFeature.
+ */
+
 #include "WorkOutputFeature.h"
 
-WorkOutputFeature::WorkOutputFeature(std::string name) : OutputFeature(name)
+WorkOutputFeature::WorkOutputFeature(const std::string& featureName)
+    : OutputFeature(featureName)
 {
-
+    //inline
 }
 
 WorkOutputFeature::~WorkOutputFeature()
 {
-    
+
 }
 
-std::string WorkOutputFeature::printOutput()
+std::string WorkOutputFeature::printOutput() const
 {
-    
-    return "something"; //change
+    // wrapped output print first, then add this feature's own output to it
+    return OutputFeature::printOutput() + " + " + OutputComponent::printOutput() ;
 }
 
 void WorkOutputFeature::add(OutputComponent* workOutput)
 {
-    
+    OutputFeature::add(workOutput) ;
 }
 
-OutputComponent* WorkOutputFeature::clone()
+OutputComponent* WorkOutputFeature::clone() const
 {
-    
-    return nullptr; //change
+    // calls deep copy constructor
+    return new WorkOutputFeature(*this) ;
 }
