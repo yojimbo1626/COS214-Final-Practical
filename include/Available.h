@@ -4,7 +4,7 @@
 #include "WorkItemState.h"
 
 /**
- * @class Assigned
+ * @class Available
  * @brief ConcreteState: the WorkItem has a Participant but work hasn't started.
  *
  * Allowed: start() -> InProgress, cancel() -> Rejected. Everything else is refused.

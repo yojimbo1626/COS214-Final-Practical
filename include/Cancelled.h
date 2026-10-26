@@ -4,7 +4,7 @@
 #include "WorkItemState.h"
 
 /**
- * @class Assigned
+ * @class Cancelled
  * @brief ConcreteState: Cancelled
  *
  */
