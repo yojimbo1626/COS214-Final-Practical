@@ -2,6 +2,7 @@
 #define WORKER_H
 
 #include <string>
+#include "TaskExecutionStrategy.h"
 
 class TaskExecutionStrategy;
 
@@ -21,10 +22,10 @@ public:
 
     TaskExecutionStrategy* getTaskExecutionStrategy() const;
     void setTaskExecutionStrategy(TaskExecutionStrategy* taskExecutionStrategy); // deletes the old one
+    void completeWorkItem(); 
 
 private:
-    Worker(const Worker&);            // disabled: owns a raw pointer
-    Worker& operator=(const Worker&); // disabled: owns a raw pointer
+    Worker(const std::string& name);           
 
     TaskExecutionStrategy* taskExecutionStrategy;
 };

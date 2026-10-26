@@ -2,14 +2,14 @@
 #include "TaskExecutionStrategy.h"
 #include "RoleExecution.h"
 
-Worker::Worker(const std::string& name)
-    : taskExecutionStrategy(new RoleExecution()) {
+Worker::Worker(const std::string& name): taskExecutionStrategy(nullptr) {
     // TODO: pass name to Participant(name) once Worker inherits from it
     (void)name;
 }
 
 Worker::~Worker() {
     delete taskExecutionStrategy;
+    taskExecutionStrategy = nullptr;
 }
 
 TaskExecutionStrategy* Worker::getTaskExecutionStrategy() const {
@@ -20,4 +20,10 @@ void Worker::setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy) {
     if (newStrategy == taskExecutionStrategy || newStrategy == nullptr) return;
     delete taskExecutionStrategy;
     taskExecutionStrategy = newStrategy;
+}
+
+void Worker::completeWorkItem() {
+    if(taskExecutionStrategy == nullptr) {
+        return;
+    }
 }

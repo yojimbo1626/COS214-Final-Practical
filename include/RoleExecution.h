@@ -8,7 +8,7 @@
  */
 class RoleExecution : public TaskExecutionStrategy {
 public:
-    std::string execute(WorkItem* w);
+    std::string execute(WorkItem* w) override;
 };
 
 #endif
