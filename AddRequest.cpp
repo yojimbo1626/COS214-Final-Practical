@@ -1,8 +1,7 @@
 #include "AddRequest.h"
 #include "WorkItem.h"
 
-AddRequest::AddRequest(WorkItem* workItem, const std::string& request)
-    : Command(workItem), request(request) {}
+AddRequest::AddRequest(WorkItem* workItem, const std::string& request): Command(workItem), request(request) {}
 
 bool AddRequest::execute() {
     if (workItem == nullptr) return false;
