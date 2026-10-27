@@ -9,11 +9,13 @@ SystemProcessor::~SystemProcessor() {
 
 bool SystemProcessor::addRequest(std::string request) {
     if (workflowController == nullptr) return false;
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->addRequest(request);
 }
 
 void SystemProcessor::cancelWork() {
     if (workflowController == nullptr) return;
+    workItemHistory->save(workItem->createSnapshot());
     workflowController->cancelWorkItem();
 }
 
@@ -23,16 +25,19 @@ bool SystemProcessor::startWorkflow(WorkItem* workItem) {
     this->workItem = workItem;
     workflowController = new WorkflowController(workItem);
 
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->startWorkflow();
 }
 
 bool SystemProcessor::assignWorkItem(Worker* worker) {
     if (workflowController == nullptr) return false;
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->assignWorkItem(worker);
 }
 
 bool SystemProcessor::completeWork() {
     if (workflowController == nullptr) return false;
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->completeWorkItem();
 }
 
@@ -71,4 +76,12 @@ void SystemProcessor::printStatus() {
          << workItem->getState()->process() << endl;
 
     cout << "======================================" << endl;
+}
+
+void SystemProcessor::setOutputRegistry(OutputRegistry* outputRegistry) {
+    this->outputRegistry = outputRegistry;
+}
+
+void SystemProcessor::undoLastAction() {
+    workItem->setSnapshot(workItemHistory->undo());
 }
