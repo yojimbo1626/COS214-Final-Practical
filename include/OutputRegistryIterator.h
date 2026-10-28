@@ -2,7 +2,6 @@
 #define OUTPUT_REGISTRY_ITERATOR_H
 
 #include "OutputComponent.h"
-#include "OutputRegistry.h"
 #include "Iterator.h"
 
 #include <string>

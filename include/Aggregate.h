@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include "OutputRegistryIterator.h"
+#include "OutputComponent.h"
 
 using namespace std;
 
