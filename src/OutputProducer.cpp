@@ -3,9 +3,9 @@
  * @brief Implements OutputProducer.
  */
 
-#include "OutputProducer.h"
+#include "../include/OutputProducer.h"
 
-#include "WorkOutput.h"
+#include "../include/WorkOutput.h"
 
 OutputComponent* OutputProducer::produceOutput(const std::string& name)
 {
