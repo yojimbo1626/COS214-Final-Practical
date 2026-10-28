@@ -3,7 +3,7 @@
  * @brief Implements WorkOutput.
  */
 
-#include "WorkOutput.h"
+#include "../include/WorkOutput.h"
 
 WorkOutput::WorkOutput(const std::string& name)
     : OutputComponent(name)

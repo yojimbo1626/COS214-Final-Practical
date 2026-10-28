@@ -43,7 +43,7 @@ public:
      * because printOutput() would then call itself forever.
      * @param workOutput The output to wrap. The feature takes ownership.
      */
-    virtual void add(OutputComponent* workOutput) = 0;
+    virtual void add(OutputComponent* newWorkOutput) = 0;
 
     /**
      * @brief Copies this feature and everything it wraps (Prototype).

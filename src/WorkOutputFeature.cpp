@@ -3,7 +3,7 @@
  * @brief Implements WorkOutputFeature.
  */
 
-#include "WorkOutputFeature.h"
+#include "../include/WorkOutputFeature.h"
 
 WorkOutputFeature::WorkOutputFeature(const std::string& featureName)
     : OutputFeature(featureName)

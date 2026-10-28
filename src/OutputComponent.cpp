@@ -3,7 +3,7 @@
  * @brief Implements OutputComponent.
  */
 
-#include "OutputComponent.h"
+#include "../include/OutputComponent.h"
 
 #include <sstream>
 

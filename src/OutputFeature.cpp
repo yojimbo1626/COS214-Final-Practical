@@ -3,7 +3,7 @@
  * @brief Implements OutputFeature.
  */
 
-#include "OutputFeature.h"
+#include "../include/OutputFeature.h"
 
 OutputFeature::OutputFeature(const std::string& name)
     : OutputComponent(name), workOutput(nullptr)
