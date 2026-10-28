@@ -1,4 +1,5 @@
 #include "../include/OutputRegistryIterator.h"
+#include "../include/OutputRegistry.h"
 
 OutputRegistryIterator::OutputRegistryIterator(OutputRegistry* outReg) {
     
@@ -7,6 +8,8 @@ OutputRegistryIterator::OutputRegistryIterator(OutputRegistry* outReg) {
     }
     this->current = 0;
 }
+
+OutputRegistryIterator::~OutputRegistryIterator() {}
 
 bool OutputRegistryIterator::hasNext() {
     if (current+1 >= toVisit.size()) {
@@ -17,10 +20,17 @@ bool OutputRegistryIterator::hasNext() {
 
 OutputComponent* OutputRegistryIterator::first() {
     current = 0;
+    if (toVisit.empty()) {
+        return nullptr;
+    }
     return toVisit[0];
 }
 
 OutputComponent* OutputRegistryIterator::next() {
+    if (toVisit.empty()) {
+        return nullptr;
+    }
+
     if (!hasNext()) {
         return toVisit[0];
     }
