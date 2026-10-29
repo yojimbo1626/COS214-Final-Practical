@@ -70,3 +70,16 @@ bool Rejected::cancel(WorkItem* c) {
     (void)c;
     return false;
 }
+
+/**
+ * @brief Attempts to block the WorkItem.
+ *
+ * Not allowed: the WorkItem has been rejected.
+ *
+ * @param b The WorkItem (unused).
+ * @return Always false. The state does not change.
+ */
+bool Rejected::blocked(WorkItem* b) {
+    (void)b;
+    return false;
+}

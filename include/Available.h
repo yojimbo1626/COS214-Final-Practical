@@ -17,6 +17,7 @@ public:
     bool assign(WorkItem* c, Participant* p);
     bool complete(WorkItem* c);
     bool cancel(WorkItem* c);
+    bool blocked(WorkItem* b);
 };
 
 #endif

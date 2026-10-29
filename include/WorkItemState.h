@@ -22,6 +22,7 @@ public:
     virtual bool assign(WorkItem* c, Participant* p) = 0;
     virtual bool complete(WorkItem* c) = 0;
     virtual bool cancel(WorkItem* c) = 0;
+    virtual bool blocked(WorkItem* b) = 0;
 
 protected:
     /**

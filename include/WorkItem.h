@@ -26,6 +26,7 @@ public:
     bool complete();
     bool cancel();
     std::string process();
+    bool blocked();
 
     WorkItemState* getState() const;
     void setState(WorkItemState* state); // deletes the old state, then notifies

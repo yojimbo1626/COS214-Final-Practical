@@ -10,6 +10,7 @@
 #include "Assigned.h"
 #include "Rejected.h"
 #include "WorkItem.h"
+#include "Blocked.h"
 
 /**
  * @brief Returns the name of this state.
@@ -80,4 +81,21 @@ bool Available::cancel(WorkItem* c) {
     }
     c->setState(new Rejected());
     return true; //  this  has been deleted, so return immediately
+}
+
+/**
+ * @brief Blocks the WorkItem until its prerequisites are done.
+ *
+ * Moves the WorkItem from Available to Blocked. Calling blocked() again
+ * on the Blocked WorkItem releases it back to Available.
+ *
+ * @param b The WorkItem being blocked.
+ * @return true if the WorkItem moved to Blocked, false if b is null.
+ */
+bool Available::blocked(WorkItem* b) {
+    if (b == nullptr) {
+        return false;
+    }
+    b->setState(new Blocked());
+    return true; // `this` has been deleted, so return immediately
 }
