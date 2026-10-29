@@ -1,5 +1,16 @@
+/**
+    * @class OutputRegistryIterator.cpp
+    * @brief Implementation of the ConcreteIterator
+
+    * @note since OutputRegistry is a PrototypeManager, this class may behave differently from future potential ConcreteIterators
+
+    * @date 29 Oct, 17:11
+*/
+
+
 #include "../include/OutputRegistryIterator.h"
-#include "../include/OutputRegistry.h"
+
+
 
 OutputRegistryIterator::OutputRegistryIterator(OutputRegistry* outReg) {
     
@@ -25,6 +36,13 @@ OutputComponent* OutputRegistryIterator::first() {
     }
     return toVisit[0];
 }
+
+
+/**
+    * @brief loops through vector without removing/modifying
+    * @return if hasNext is false, then we return the first item in the vector. If vector is empty, return nullptr
+
+*/
 
 OutputComponent* OutputRegistryIterator::next() {
     if (toVisit.empty()) {

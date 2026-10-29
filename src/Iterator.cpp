@@ -1,5 +1,10 @@
-#include "../include/Iterator.h"
+/**
+    * @class Iterator.cpp
+    * @brief The implementation of Iterator
+    * @note Default constructor used in subclasses
+*/
 
-Iterator::Iterator(OutputRegistry* outReg) : outRegistery(outReg), current(0) {}
+
+#include "../include/Iterator.h"
 
 Iterator::~Iterator() {}
