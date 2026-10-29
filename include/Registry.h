@@ -26,7 +26,7 @@ public:
      * @brief Creates an iterator positioned at the first output of this registry.
      * @return A new iterator, the caller owns it and must delete it.
      */
-    virtual Iterator* createIterator() = 0;
+    virtual Iterator* createIterator() = 0; //done in owner
 };
 
 #endif
