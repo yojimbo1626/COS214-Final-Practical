@@ -14,7 +14,7 @@
 #include "WorkItem.h"
 #include "WorkItemState.h"
 #include "Available.h"
-#include "Participant.h"
+#include "Client.h"
 #include <algorithm>
 
 /**
