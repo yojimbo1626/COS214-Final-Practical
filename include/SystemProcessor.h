@@ -73,6 +73,20 @@ public:
     bool completeWork();
 
     /**
+     * @brief Processes a work item from creation through to completion.
+     *
+     * Creates and starts a work item using the worker's details, assigns it to
+     * the worker, processes the client's requests, displays the work item
+     * information, and completes the work item.
+     *
+     * @param worker Pointer to the worker responsible for the work item.
+     * @param client Pointer to the client submitting the requests.
+     * @param requests A vector containing the requests to be processed.
+     * @return True if the work item is processed successfully, false otherwise.
+     */
+    bool processWorkItem(Worker* worker, Client* client, vector<string> requests);
+
+    /**
      * @brief Creates outputs for each request associated with the current work item.
      * @return A vector of pointers to the created output components.
      */

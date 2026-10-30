@@ -73,3 +73,21 @@ TEST_CASE("Two SystemProcessors keep their workflows isolated") {
     processorA.startWorkflow(&itemA);
     CHECK_FALSE(processorB.completeWork());
 }
+
+TEST_CASE("SystemProcessor produces output for multiple requests") {
+    SystemProcessor processor;
+    OutputRegistry registry;
+
+    processor.setOutputRegistry(&registry);
+
+    WorkItem* item = new WorkItem("Test", "Test description");
+    item->addRequest("Report");
+    item->addRequest("Invoice");
+
+    vector<OutputComponent*> outputs = processor.produceOutput();
+
+    CHECK(outputs.size() == 2);
+
+    for (OutputComponent* output : outputs) 
+        delete output;
+}

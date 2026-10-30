@@ -3,6 +3,7 @@
 #include "OutputRegistry.h"
 #include "OutputRegistryIterator.h"
 #include "OutputComponent.h"
+#include "Worker.h"
 
 SystemProcessor::SystemProcessor()
     : workItem(nullptr), workflowController(nullptr), outputRegistry(nullptr) {}
@@ -55,11 +56,16 @@ void SystemProcessor::cancelWork() {
 bool SystemProcessor::startWorkflow(WorkItem* workItem) {
     if (workItem == nullptr) return false;
 
-    delete workflowController;
     this->workItem = workItem;
+
+    delete workflowController;
     workflowController = new WorkflowController(workItem);
 
+    delete workItemHistory;
+    workItemHistory = new WorkItemHistory;
+
     workItemHistory->save(workItem->createSnapshot());
+
     return workflowController->startWorkflow();
 }
 
@@ -76,6 +82,41 @@ bool SystemProcessor::completeWork() {
     return workflowController->completeWorkItem();
 }
 
+bool SystemProcessor::processWorkItem(Worker* worker, Client* client, vector<string> requests) {
+    if (!worker || !client) {
+        cout << "Failed to process work item.\n";
+        return false;
+    }
+
+    cout << "==========\nPROCESSING WORK ITEM\n==========\n\n";
+    if (!startWorkflow(new WorkItem(worker->getWorkItemName(), worker->getWorkItemDescription()))) {
+        cout << "Failed to process work item.\n";
+        return false;
+    }
+        
+    if (!assignWorkItem(worker)) {
+        cout << "Failed to process work item.\n";
+        return false;
+    }
+
+    client->requestProcessor(worker);
+    for (string request : requests) {
+        if (!client->addRequest(request)) {
+            cout << "Failed to process work item.\n";
+            return false;
+        }
+    }
+    printWorkItem();
+    cout << endl;
+
+    if (!worker->completeWorkItem()) {
+        cout << "Failed to process work item.\n";
+        return false;
+    }
+    cout << "==========\n"
+    return true;
+}
+
 vector<OutputComponent*> SystemProcessor::produceOutput() {
     vector<OutputComponent*> outputs;
     for (const string& request : workItem->getRequests()) 
@@ -89,7 +130,7 @@ void SystemProcessor::printWorkItem() {
         return;
     }
 
-    cout << "\n========== Work Item Status ==========" << endl;
+    cout << "\n========== Work Item ==========" << endl;
 
     cout << "Name: " << workItem->getName() << endl;
     cout << "Description: " << workItem->getDescription() << endl;
