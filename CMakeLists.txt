@@ -20,8 +20,9 @@ enable_testing()
 # 4. Build your test executable
 # (Add these file names manually, also add folders if inside any)
 
-add_executable(unit_tests 
-    CommandTests.cpp
+add_executable(file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/*Tests.cpp)
+add_executable(unit_tests ${TEST_SOURCES} ...your non-test sources...)
 )
 
 # 5. Link doctest (this provides the main() function automatically)
