@@ -2,7 +2,7 @@ name: C++11 CI with doctest
 
 on:
   push:
-    branches: ["*"]
+    branches: ["**"]
   pull_request:
     branches: [ "main", "dev" ]
 
