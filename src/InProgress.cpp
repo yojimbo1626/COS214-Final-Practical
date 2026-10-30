@@ -74,3 +74,16 @@ bool InProgress::cancel(WorkItem* c) {
     (void)c;
     return false;
 }
+
+/**
+ * @brief Attempts to block the WorkItem.
+ *
+ * Not allowed: work has already started.
+ *
+ * @param b The WorkItem (unused).
+ * @return Always false. The state does not change.
+ */
+bool InProgress::blocked(WorkItem* b) {
+    (void)b;
+    return false;
+}

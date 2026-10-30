@@ -9,7 +9,6 @@
 #include "InProgress.h"
 #include "Rejected.h"
 #include "WorkItem.h"
-
 /**
  * @brief Returns the name of this state.
  * @return The string "Assigned" (state).
@@ -76,4 +75,18 @@ bool Assigned::cancel(WorkItem* c) {
     }
     changeState(c, new Rejected());
     return true; // this has been deleted, so return immediately
+}
+
+/**
+ * @brief Attempts to block the WorkItem.
+ *
+ * Not allowed: the WorkItem is already assigned. Only an Available WorkItem
+ * can be blocked.
+ *
+ * @param b The WorkItem (unused).
+ * @return Always false. The state does not change.
+ */
+bool Assigned::blocked(WorkItem* b) {
+    (void)b;
+    return false;
 }

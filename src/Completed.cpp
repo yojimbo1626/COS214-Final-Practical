@@ -70,3 +70,16 @@ bool Completed::cancel(WorkItem* c) {
     (void)c;
     return false;
 }
+
+/**
+ * @brief Attempts to block the WorkItem.
+ *
+ * Not allowed: the WorkItem is already completed.
+ *
+ * @param b The WorkItem (unused).
+ * @return Always false. The state does not change.
+ */
+bool Completed::blocked(WorkItem* b) {
+    (void)b;
+    return false;
+}

@@ -211,3 +211,12 @@ void WorkItem::notify() {
         toNotify[i]->receiveUpdate(update);
     }
 }
+
+/**
+ * @brief Requests that this WorkItem is blocked, or released if already Blocked.
+ * @return true if the current state allowed it (Available to Blocked,
+ *         or Blocked to Available).
+ */
+bool WorkItem::blocked() {
+    return state->blocked(this);
+}
