@@ -19,6 +19,10 @@ public:
 
     std::string getName() const;
     std::string getDescription() const;
+    Participant* getClient() const;
+    
+    std::vector<std::string> getRequests() const;
+    void addRequest(std::string request);
 
     // State requests: each one forwards to the current state
     bool start();
@@ -41,6 +45,7 @@ private:
     std::string description;
     WorkItemState* state;
     std::vector<Participant*> observers;
+    std::vector<std::string> requests;
 };
 
 #endif
