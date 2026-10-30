@@ -93,3 +93,7 @@ void SystemProcessor::printWorkItem() {
 
     cout << "======================================" << endl;
 }
+
+void SystemProcessor::setOutputRegistry(OutputRegistry* outputRegistry) {
+    this->outputRegistry = outputRegistry;
+}

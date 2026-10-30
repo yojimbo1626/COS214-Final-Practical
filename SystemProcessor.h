@@ -76,11 +76,13 @@ public:
      * Displays the work item's name, description, requests, client, and current
      * state. If no work item is available, prints a message and returns.
      */
-    void printStatus();
+    void printWorkItem();
 
+    /**
+     * @brief Sets the output registry used to create outputs.
+     * @param outputRegistry Pointer to the output registry.
+     */
     void setOutputRegistry(OutputRegistry* outputRegistry);
-
-    void undoLastAction();
 };
 
 #endif
