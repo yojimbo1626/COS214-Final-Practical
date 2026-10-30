@@ -11,8 +11,22 @@ SystemProcessor::~SystemProcessor() {
     delete workflowController;
 }
 
+vector<string> SystemProcessor::getAvailableOutputs() {
+    if (outputRegistry == nullptr) return vector<string>();
+
+    vector<string> outputs;
+    OutputRegistryIterator* it = outputRegistry->createIterator();
+
+    while (it->hasNext()) {
+        outputs.push_back(it->next()->toString());
+    }
+
+    delete it;
+    return outputs;
+}
+
 bool SystemProcessor::addRequest(std::string request) {
-    if (outputRegistry == nullptr) return false;
+    if (outputRegistry == nullptr || workflowController == nullptr) return false;
 
     OutputRegistryIterator* it = outputRegistry->createIterator();
     bool found = false;
@@ -28,12 +42,13 @@ bool SystemProcessor::addRequest(std::string request) {
 
     if (!found) return false;
 
-    if (workflowController == nullptr) return false;
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->addRequest(request);
 }
 
 void SystemProcessor::cancelWork() {
     if (workflowController == nullptr) return;
+    workItemHistory->save(workItem->createSnapshot());
     workflowController->cancelWorkItem();
 }
 
@@ -44,16 +59,20 @@ bool SystemProcessor::startWorkflow(WorkItem* workItem) {
     this->workItem = workItem;
     workflowController = new WorkflowController(workItem);
 
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->startWorkflow();
 }
 
 bool SystemProcessor::assignWorkItem(Worker* worker) {
     if (workflowController == nullptr) return false;
+    worker->assignProcessor(this);
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->assignWorkItem(worker);
 }
 
 bool SystemProcessor::completeWork() {
     if (workflowController == nullptr) return false;
+    workItemHistory->save(workItem->createSnapshot());
     return workflowController->completeWorkItem();
 }
 

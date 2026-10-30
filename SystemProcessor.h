@@ -24,6 +24,7 @@ private:
     WorkflowController* workflowController; 
     OutputRegistry* outputRegistry;       
     WorkItemHistory* workItemHistory; 
+    friend Worker;
 
 public:
     /** @brief Creates a processor with no work item or controller yet. */
@@ -31,6 +32,13 @@ public:
 
     /** @brief Destroys the processor and the controller it created. */
     ~SystemProcessor();
+    
+    /**
+     * @brief Retrieves the names of all available output types from the output registry.
+     * @return A vector containing the descriptions of the available outputs.
+     *         Returns an empty vector if no output registry is available.
+     */
+    vector<string> getAvailableOutputs();
 
     /**
      * @brief Adds a request to the current work item.
