@@ -26,6 +26,13 @@ public:
     explicit ClientProcessor(SystemProcessor* processor);
 
     /**
+     * @brief Retrieves the names of all available output types from the output registry.
+     * @return A vector containing the descriptions of the available outputs.
+     *         Returns an empty vector if no system processor is available.
+     */
+    vector<string> getAvailableOutputs();
+
+    /**
      * @brief Forwards a request to the real processor.
      * @param request The request text.
      * @return true on success, false otherwise.

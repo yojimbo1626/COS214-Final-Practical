@@ -16,6 +16,12 @@ public:
     virtual ~WorkflowProcessor() {}
 
     /**
+     * @brief Retrieves the names of all available output types from the output registry.
+     * @return A vector containing the descriptions of the available outputs.
+     */
+    virtual vector<string> getAvailableOutputs() = 0;
+
+    /**
      * @brief Adds a request to the current work item.
      * @param request The request text.
      * @return true if the request was added, false otherwise.
