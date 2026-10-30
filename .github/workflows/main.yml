@@ -16,7 +16,7 @@ jobs:
 
     - name: Configure CMake
       # Explicitly enforces the C++11 standard for the build
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=11
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=11 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
     - name: Build
       # Compiles your source files and the doctest executable
