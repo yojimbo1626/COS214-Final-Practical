@@ -5,30 +5,30 @@ project(MyProject CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 2. Fetch doctest automatically during the build
+# 2. Fetch doctest automatically during configure
 include(FetchContent)
 FetchContent_Declare(
   doctest
   GIT_REPOSITORY https://github.com/doctest/doctest
-  GIT_TAG v2.4.11 # Latest stable release
+  GIT_TAG v2.4.11
 )
 FetchContent_MakeAvailable(doctest)
 
 # 3. Enable testing
 enable_testing()
 
-# 4. Build your test executable
-# (Add these file names manually, also add folders if inside any)
+# 4. Collect sources automatically
+# Tests go anywhere under tests/, class code under src/
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
+file(GLOB_RECURSE APP_SOURCES  CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-add_executable(file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
-    ${CMAKE_SOURCE_DIR}/*Tests.cpp)
-add_executable(unit_tests ${TEST_SOURCES} ...your non-test sources...)
-)
+add_executable(unit_tests ${APP_SOURCES} ${TEST_SOURCES})
 
-# 5. Link doctest (this provides the main() function automatically)
+target_include_directories(unit_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# 5. Link doctest (header and include path; main() comes from one test file)
 target_link_libraries(unit_tests PRIVATE doctest::doctest)
 
-# 6. Discover individual test cases for CTest
-# This requires CMake 3.14+ and is built into doctest
+# 6. Register each doctest test case with CTest
 include("${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake")
 doctest_discover_tests(unit_tests)
