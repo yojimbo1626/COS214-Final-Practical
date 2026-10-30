@@ -73,7 +73,7 @@ public:
      * Displays the work item's name, description, requests, client, and current
      * state. If no work item is available, prints a message and returns.
      */
-    void printStatus();
+    void printWorkItem();
 };
 
 #endif

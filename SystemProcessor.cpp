@@ -43,7 +43,7 @@ vector<OutputComponent*> SystemProcessor::produceOutput() {
     return outputs;
 }
 
-void SystemProcessor::printStatus() {
+void SystemProcessor::printWorkItem() {
     if (workItem == NULL) {
         cout << "No work item available." << endl;
         return;
