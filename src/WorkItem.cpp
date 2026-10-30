@@ -64,6 +64,33 @@ std::string WorkItem::getDescription() const {
 }
 
 /**
+ * @brief Retrieves the client observing this work item.
+ * @return A pointer to the client, or nullptr if no client is found.
+ */
+Participant* WorkItem::getClient() const {
+    for (Participant* participant : observers) {
+        if (dynamic_cast<Client*>(participant) != nullptr) return participant;
+    }
+    return nullptr;
+}
+
+/**
+ * @brief Retrieves the requests associated with this work item.
+ * @return A vector containing the work item's requests.
+ */
+std::vector<std::string> WorkItem::getRequests() const {
+    return requests;
+}
+
+/**
+ * @brief Adds a request to the work item.
+ * @param request The request to be added.
+ */
+void WorkItem::addRequest(std::string request) {
+    requests.push_back(request);
+}
+
+/**
  * @brief Requests that work on this WorkItem starts.
  * @return true if the current state allowed it (Assigned to InProgress).
  */
