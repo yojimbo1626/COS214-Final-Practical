@@ -3,11 +3,13 @@
 
 #include <iostream>
 #include "WorkflowProcessor.h"
+#include "WorkItemHistory.h"
 
 class WorkItem;
 class WorkflowController;
 class OutputRegistry;
 class Worker;
+class WorkItemHistory
 
 /**
  * @class SystemProcessor
@@ -20,7 +22,8 @@ class SystemProcessor : public WorkflowProcessor {
 private:
     WorkItem* workItem;                    
     WorkflowController* workflowController; 
-    OutputRegistry* outputRegistry;        
+    OutputRegistry* outputRegistry;       
+    WorkItemHistory* workItemHistory; 
 
 public:
     /** @brief Creates a processor with no work item or controller yet. */
@@ -73,7 +76,11 @@ public:
      * Displays the work item's name, description, requests, client, and current
      * state. If no work item is available, prints a message and returns.
      */
-    void printWorkItem();
+    void printStatus();
+
+    void setOutputRegistry(OutputRegistry* outputRegistry);
+
+    void undoLastAction();
 };
 
 #endif
