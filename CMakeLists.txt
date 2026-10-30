@@ -18,7 +18,8 @@ FetchContent_MakeAvailable(doctest)
 enable_testing()
 
 # 4. Build your test executable
-# (Add these file names manually)
+# (Add these file names manually, also add folders if inside any)
+
 add_executable(unit_tests 
     CommandTests.cpp
 )
