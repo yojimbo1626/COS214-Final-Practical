@@ -7,9 +7,8 @@
     * @date 29 Oct, 17:11
 */
 
-
 #include "../include/OutputRegistryIterator.h"
-
+#include "../include/OutputRegistry.h"
 
 
 OutputRegistryIterator::OutputRegistryIterator(OutputRegistry* outReg) {
@@ -50,7 +49,7 @@ OutputComponent* OutputRegistryIterator::next() {
     }
 
     if (!hasNext()) {
-        return toVisit[0];
+        return first();
     }
     return toVisit[++current];
 }

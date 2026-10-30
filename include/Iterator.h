@@ -10,18 +10,13 @@
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
-#include <string>
-#include <vector>
-
-
 /**
     @tparam Item is the object type to be iterated through
 */
 template <class Item>
 class Iterator {
     public:
-        Iterator();
-        virtual ~Iterator();
+        virtual ~Iterator() = default;
         virtual bool hasNext() =0;
         virtual Item* next() =0;
         virtual Item* first() =0;

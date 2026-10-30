@@ -23,20 +23,20 @@ class OutputRegistry;
 */
 class OutputRegistryIterator : public Iterator<OutputComponent> {
     private:
-        vector<OutputComponent*> toVisit;
+        std::vector<OutputComponent*> toVisit;
         size_t current;
     public:
         OutputRegistryIterator(OutputRegistry* outReg);
-        ~OutputRegistryIterator();
+        ~OutputRegistryIterator() override;
 
 
         /**
             * @brief These traversal methods go through the vector without removing it. Going next from the last item goes back to the start of the vector.
             * @return Returns the OutputComponent which has been or can be cloned, or null if vector is empty
         */
-        bool hasNext();
-        OutputComponent* next();
-        OutputComponent* first();
+        bool hasNext() override;
+        OutputComponent* next() override;
+        OutputComponent* first() override;
 };
 
 
