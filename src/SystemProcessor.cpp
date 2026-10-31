@@ -23,7 +23,7 @@ vector<string> SystemProcessor::getAvailableOutputs() {
     OutputRegistryIterator* it = outputRegistry->createIterator();
 
     while (it->hasNext()) {
-        outputs.push_back(it->next()->toString());
+        outputs.push_back(it->next()->printOutput());
     }
 
     delete it;
@@ -39,7 +39,7 @@ bool SystemProcessor::addRequest(std::string request) {
     for (OutputComponent* component = it->first();
          component != nullptr;
          component = it->hasNext() ? it->next() : nullptr) {
-        if (component->toString() == request) {
+        if (component->printOutput() == request) {
             found = true;
             break;
         }
@@ -176,7 +176,7 @@ void SystemProcessor::printWorkItem() {
 
     cout << "\nClient: ";
     if (workItem->getClient() != nullptr)
-        cout << workItem->getClient()->toString() << endl;
+        cout << workItem->getClient()->getName() << endl;
     else
         cout << "No client assigned." << endl;
 
