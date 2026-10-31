@@ -17,7 +17,7 @@ public:
     TaskExecutionStrategy* getTaskExecutionStrategy() const;
     void setTaskExecutionStrategy(TaskExecutionStrategy* taskExecutionStrategy); // deletes the old one
 
-    void receiveUpdate(const std::string& update);
+    void receiveUpdate(std::string update);
     std::string toString();
 
 private:

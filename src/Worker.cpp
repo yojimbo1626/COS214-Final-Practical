@@ -63,7 +63,7 @@ void Worker::setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy) {
  *
  * @param update The message pushed by the WorkItem.
  */
-void Worker::receiveUpdate(const std::string& update) {
+void Worker::receiveUpdate(std::string update) {
     std::cout << "[" << toString() << "] received update: " << update << std::endl;
 }
 
