@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/Users/yojimbo/COS214-Final-Practical/build/cmake_install.cmake",
-		"/Users/yojimbo/COS214-Final-Practical/build/_deps/doctest-build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
