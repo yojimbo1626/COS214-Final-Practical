@@ -19,7 +19,7 @@ public:
     void notify(std::string update);
     virtual ~WorkUnit() = 0;
 
-private:
+protected:
     std::vector<Participant*> observers;
 };
 

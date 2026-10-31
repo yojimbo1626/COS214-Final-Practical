@@ -19,9 +19,7 @@
  * @todo Pass name to Participant(name) once Worker inherits from Participant.
  */
 Worker::Worker(std::string name)
-    : taskExecutionStrategy(new RoleExecution()), Participant(name) {
-    (void)name;
-}
+    : Participant(name), taskExecutionStrategy(new RoleExecution()) {}
 
 /**
  * @brief Destroys the Worker and the strategy it owns.
