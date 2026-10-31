@@ -2,14 +2,17 @@
 #define SYSTEMPROCESSOR_H
 
 #include <iostream>
+#include <string>
+#include <vector>
+
 #include "WorkflowProcessor.h"
-#include "WorkItemHistory.h"
 
 class WorkItem;
 class WorkflowController;
 class OutputRegistry;
 class Worker;
-class WorkItemHistory
+class Client;
+class WorkItemHistory;
 
 /**
  * @class SystemProcessor

@@ -3,12 +3,18 @@
  * @brief Unit tests for the Facade pattern (SystemProcessor).
  */
 #include <string>
+#include <vector>
 
-#include "doctest.h"
+#include "doctest/doctest.h"
 
 #include "SystemProcessor.h"
 #include "WorkItem.h"
 #include "Worker.h"
+#include "OutputRegistry.h"
+#include "OutputComponent.h"
+#include "WorkOutput.h"
+
+using namespace std;
 
 TEST_CASE("SystemProcessor refuses work before a workflow has been started") {
     SystemProcessor processor;
@@ -74,20 +80,35 @@ TEST_CASE("Two SystemProcessors keep their workflows isolated") {
     CHECK_FALSE(processorB.completeWork());
 }
 
-TEST_CASE("SystemProcessor produces output for multiple requests") {
+TEST_CASE("SystemProcessor produces no output without a work item") {
     SystemProcessor processor;
     OutputRegistry registry;
 
     processor.setOutputRegistry(&registry);
 
-    WorkItem* item = new WorkItem("Test", "Test description");
-    item->addRequest("Report");
-    item->addRequest("Invoice");
+    vector<OutputComponent*> outputs = processor.produceOutput();
+
+    CHECK(outputs.empty());
+}
+
+TEST_CASE("SystemProcessor produces output for multiple requests") {
+    SystemProcessor processor;
+    OutputRegistry registry;
+    registry.registerOutput("Report", new WorkOutput("Report"));
+    registry.registerOutput("Invoice", new WorkOutput("Invoice"));
+
+    processor.setOutputRegistry(&registry);
+
+    WorkItem item("Test", "Test description");
+    item.addRequest("Report");
+    item.addRequest("Invoice");
+
+    CHECK(processor.startWorkflow(&item));
 
     vector<OutputComponent*> outputs = processor.produceOutput();
 
     CHECK(outputs.size() == 2);
 
-    for (OutputComponent* output : outputs) 
+    for (OutputComponent* output : outputs)
         delete output;
 }
