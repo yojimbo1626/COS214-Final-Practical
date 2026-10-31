@@ -3,8 +3,7 @@
  * @brief Unit tests for the Decorator pattern (OutputComponent, WorkOutput, OutputFeature, WorkOutputFeature)
  * and the Prototype pattern (clone() and OutputRegistry as the prototype manager).
  */
-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+    
 #include "doctest/doctest.h"
 
 #include "../include/OutputRegistry.h"
