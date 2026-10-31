@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "doctest.h"
+#include "doctest/doctest.h"
 
 #include "Command.h"
 #include "AddRequest.h"

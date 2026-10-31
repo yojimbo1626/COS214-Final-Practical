@@ -1,5 +1,5 @@
-#include "AddRequest.h"
-#include "WorkItem.h"
+#include "../include/AddRequest.h"
+#include "../include/WorkItem.h"
 
 AddRequest::AddRequest(WorkItem* workItem, const std::string& request): Command(workItem), request(request) {}
 

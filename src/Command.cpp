@@ -1,4 +1,4 @@
-#include "Command.h"
+#include "../include/Command.h"
 
 Command::Command(WorkItem* workItem) : workItem(workItem) {}
 

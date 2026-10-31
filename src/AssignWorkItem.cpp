@@ -1,5 +1,5 @@
-#include "AssignWorkItem.h"
-#include "WorkItem.h"
+#include "../include/AssignWorkItem.h"
+#include "../include/WorkItem.h"
 
 AssignWorkItem::AssignWorkItem(WorkItem* workItem) : Command(workItem) {}
 

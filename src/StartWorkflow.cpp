@@ -1,5 +1,5 @@
-#include "StartWorkflow.h"
-#include "WorkItem.h"
+#include "../include/StartWorkflow.h"
+#include "../include/WorkItem.h"
 
 StartWorkflow::StartWorkflow(WorkItem* workItem) : Command(workItem) {}
 

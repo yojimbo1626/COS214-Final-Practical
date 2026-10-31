@@ -1,5 +1,5 @@
-#include "CancelWorkItem.h"
-#include "WorkItem.h"
+#include "../include/CancelWorkItem.h"
+#include "../include/WorkItem.h"
 
 CancelWorkItem::CancelWorkItem(WorkItem* workItem) : Command(workItem) {}
 

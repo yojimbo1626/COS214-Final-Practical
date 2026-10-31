@@ -1,5 +1,5 @@
-#include "CompleteWorkItem.h"
-#include "WorkItem.h"
+#include "../include/CompleteWorkItem.h"
+#include "../include/WorkItem.h"
 
 CompleteWorkItem::CompleteWorkItem(WorkItem* workItem) : Command(workItem) {}
 
