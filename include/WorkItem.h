@@ -20,7 +20,7 @@ public:
 
     std::string getName() const;
     std::string getDescription() const;
-    //Participant* getClient() const;
+    Participant* getClient() const;
     
     //std::vector<std::string> getRequests() const;
     //void addRequest(std::string request);
@@ -36,16 +36,10 @@ public:
     WorkItemState* getState() const;
     void setState(WorkItemState* state); // deletes the old state, then notifies
 
-    // Observer
-    // void addObserver(Participant* participant);
-    // void removeObserver(Participant* participant);
-    // void notify();
-
 private:
     std::string name;
     std::string description;
     WorkItemState* state;
-    std::vector<Participant*> observers;
     std::vector<std::string> requests;
 };
 

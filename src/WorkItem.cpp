@@ -15,7 +15,6 @@
 #include "WorkItemState.h"
 #include "Available.h"
 #include "Client.h"
-#include <algorithm>
 
 /**
  * @brief Creates a WorkItem in the Available state.
@@ -63,16 +62,16 @@ std::string WorkItem::getDescription() const {
     return description;
 }
 
-// /**
-//  * @brief Retrieves the client observing this work item.
-//  * @return A pointer to the client, or nullptr if no client is found.
-//  */
-// Participant* WorkItem::getClient() const {
-//     for (Participant* participant : observers) {
-//         if (dynamic_cast<Client*>(participant) != nullptr) return participant;
-//     }
-//     return nullptr;
-// }
+/**
+ * @brief Retrieves the client observing this work item.
+ * @return A pointer to the client, or nullptr if no client is found.
+ */
+Participant* WorkItem::getClient() const {
+    for (Participant* participant : observers) {
+        if (dynamic_cast<Client*>(participant) != nullptr) return participant;
+    }
+    return nullptr;
+}
 
 // /**
 //  * @brief Retrieves the requests associated with this work item.
