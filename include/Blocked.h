@@ -5,7 +5,10 @@
 
 /**
  * @class Blocked
- * @brief ConcreteState: Another WorkItem is busy being processed.
+ * @brief ConcreteState: the WorkItem is waiting for its prerequisite WorkItems to finish.
+ *
+ * Allowed: blocked() -> Available (release), cancel() -> Rejected.
+ * Everything else is refused.
  *
  */
 

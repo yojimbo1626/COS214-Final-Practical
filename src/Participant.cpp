@@ -48,19 +48,3 @@ int Participant::getId() const {
 std::string Participant::getName() const {
     return name;
 }
-
-// /**
-//  * @brief Logs this Participant's history.
-//  * @todo Not part of the Observer pattern. Implement or remove according to the UML owner.
-//  */
-// void Participant::historylogger() {
-//     // TODO
-// }
-
-// /**
-//  * @brief Tracks dependencies for this Participant.
-//  * @todo Not part of the Observer pattern. Implement or remove according to the UML owner.
-//  */
-// void Participant::dependencyTracker() {
-//     // TODO
-// }

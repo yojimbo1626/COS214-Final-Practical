@@ -5,10 +5,10 @@
 
 /**
  * @class Available
- * @brief ConcreteState: the WorkItem has a Participant but work hasn't started.
+ * @brief ConcreteState: the initial state. The WorkItem exists but has no Participant yet.
  *
- * Allowed: start() -> InProgress, cancel() -> Rejected. Everything else is refused.
- *
+ * Allowed: assign(p) -> Assigned, cancel() -> Rejected, blocked() -> Blocked.
+ * Everything else is refused.
  */
 class Available : public WorkItemState {
 public:
