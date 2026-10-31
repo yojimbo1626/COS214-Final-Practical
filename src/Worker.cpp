@@ -23,43 +23,6 @@ Worker::Worker(const std::string& name)
     (void)name;
 }
 
-Worker::Worker(const std::string& name)
-    : Participant(name) {
-    (void)name;
-}
-
-/**
- * @brief Destroys the Worker and the strategy it owns.
- */
-Worker::~Worker() {
-    delete taskExecutionStrategy;
-}
-
-/**
- * @brief Returns the current execution strategy.
- * @return Pointer to the current strategy. The Worker still owns it,
- *         so the caller must not delete it.
- */
-TaskExecutionStrategy* Worker::getTaskExecutionStrategy() const {
-    return taskExecutionStrategy;
-}
-
-/**
- * @brief Replaces the current execution strategy and deletes the old one.
- *
- * Does nothing if newStrategy is null (a Worker must always have a strategy)
- * or if it is already the current strategy.
- *
- * @param newStrategy The new strategy. The Worker takes ownership of it.
- */
-void Worker::setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy) {
-    if (newStrategy == nullptr || newStrategy == taskExecutionStrategy) {
-        return;
-    }
-    delete taskExecutionStrategy;
-    taskExecutionStrategy = newStrategy;
-}
-
 /**
  * @brief Destroys the Worker and the strategy it owns.
  */
