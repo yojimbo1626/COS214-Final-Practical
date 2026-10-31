@@ -23,19 +23,6 @@ public:
     virtual bool complete(WorkItem* c) = 0;
     virtual bool cancel(WorkItem* c) = 0;
     virtual bool blocked(WorkItem* b) = 0;
-
-protected:
-    /**
-     * @brief Lets concrete states change the WorkItem's state.
-     *
-     * WorkItem::setState is private and WorkItem only befriends this base
-     * class. Friendship is not inherited in C++, so subclasses go through
-     * this helper.
-     *
-     * WARNING: the WorkItem deletes its old state (usually `this`), so
-     * return straight after calling this. Don't touch members afterwards.
-     */
-    static void changeState(WorkItem* c, WorkItemState* next);
 };
 
 #endif
