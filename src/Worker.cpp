@@ -18,7 +18,7 @@
  * @param name The Worker's name.
  * @todo Pass name to Participant(name) once Worker inherits from Participant.
  */
-Worker::Worker(const std::string& name)
+Worker::Worker(std::string name)
     : taskExecutionStrategy(new RoleExecution()), Participant(name) {
     (void)name;
 }

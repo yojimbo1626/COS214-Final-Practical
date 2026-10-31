@@ -11,11 +11,11 @@ class TaskExecutionStrategy;
  */
 class Worker : public Participant {
 public:
-    explicit Worker(const std::string& name);
+    explicit Worker(std::string name);
     ~Worker();
 
     TaskExecutionStrategy* getTaskExecutionStrategy() const;
-    void setTaskExecutionStrategy(TaskExecutionStrategy* taskExecutionStrategy); // deletes the old one
+    void setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy); // deletes the old one
 
     void receiveUpdate(std::string update);
     std::string toString();
