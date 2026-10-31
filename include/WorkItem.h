@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "WorkUnit.h"
 
 class WorkItemState;
 class Participant;
@@ -11,7 +12,7 @@ class Participant;
  * @brief Context in the State pattern, and Subject / ConcreteSubject in the
  *        Observer pattern.
  */
-class WorkItem {
+class WorkItem : public WorkUnit {
 public:
     WorkItem(std::string name, std::string description);
     WorkItem(const WorkItem& workItem);
@@ -19,10 +20,10 @@ public:
 
     std::string getName() const;
     std::string getDescription() const;
-    Participant* getClient() const;
+    //Participant* getClient() const;
     
-    std::vector<std::string> getRequests() const;
-    void addRequest(std::string request);
+    //std::vector<std::string> getRequests() const;
+    //void addRequest(std::string request);
 
     // State requests: each one forwards to the current state
     bool start();
@@ -36,9 +37,9 @@ public:
     void setState(WorkItemState* state); // deletes the old state, then notifies
 
     // Observer
-    void addObserver(Participant* participant);
-    void removeObserver(Participant* participant);
-    void notify();
+    // void addObserver(Participant* participant);
+    // void removeObserver(Participant* participant);
+    // void notify();
 
 private:
     std::string name;

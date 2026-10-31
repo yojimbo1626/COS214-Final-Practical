@@ -29,7 +29,7 @@ bool Assigned::start(WorkItem* c) {
     if (c == nullptr) {
         return false;
     }
-    changeState(c, new InProgress());
+    c->setState(new InProgress());
     return true; // this has been deleted so return
 }
 
@@ -73,7 +73,7 @@ bool Assigned::cancel(WorkItem* c) {
     if (c == nullptr) {
         return false;
     }
-    changeState(c, new Rejected());
+    c->setState(new Rejected());
     return true; // this has been deleted, so return immediately
 }
 

@@ -58,7 +58,7 @@ bool InProgress::complete(WorkItem* c) {
     if (c == nullptr) {
         return false;
     }
-    changeState(c, new Completed());
+    c->setState(new Completed());
     return true; // this has been deleted, so return immediately
 }
 

@@ -36,7 +36,7 @@ WorkItem::WorkItem(std::string name, std::string description)
  * @param workItem The WorkItem to copy.
  */
 WorkItem::WorkItem(const WorkItem& workItem)
-    : name(workItem.name), description(workItem.description), state(new Available()) {}
+    : WorkUnit(), name(workItem.name), description(workItem.description), state(new Available()) {}
 
 /**
  * @brief Destroys the WorkItem and the state it owns.
@@ -63,32 +63,32 @@ std::string WorkItem::getDescription() const {
     return description;
 }
 
-/**
- * @brief Retrieves the client observing this work item.
- * @return A pointer to the client, or nullptr if no client is found.
- */
-Participant* WorkItem::getClient() const {
-    for (Participant* participant : observers) {
-        if (dynamic_cast<Client*>(participant) != nullptr) return participant;
-    }
-    return nullptr;
-}
+// /**
+//  * @brief Retrieves the client observing this work item.
+//  * @return A pointer to the client, or nullptr if no client is found.
+//  */
+// Participant* WorkItem::getClient() const {
+//     for (Participant* participant : observers) {
+//         if (dynamic_cast<Client*>(participant) != nullptr) return participant;
+//     }
+//     return nullptr;
+// }
 
-/**
- * @brief Retrieves the requests associated with this work item.
- * @return A vector containing the work item's requests.
- */
-std::vector<std::string> WorkItem::getRequests() const {
-    return requests;
-}
+// /**
+//  * @brief Retrieves the requests associated with this work item.
+//  * @return A vector containing the work item's requests.
+//  */
+// std::vector<std::string> WorkItem::getRequests() const {
+//     return requests;
+// }
 
-/**
- * @brief Adds a request to the work item.
- * @param request The request to be added.
- */
-void WorkItem::addRequest(std::string request) {
-    requests.push_back(request);
-}
+// /**
+//  * @brief Adds a request to the work item.
+//  * @param request The request to be added.
+//  */
+// void WorkItem::addRequest(std::string request) {
+//     requests.push_back(request);
+// }
 
 /**
  * @brief Requests that work on this WorkItem starts.
@@ -158,59 +158,59 @@ void WorkItem::setState(WorkItemState* newState) {
     WorkItemState* old = state;
     state = newState;
     delete old;
-    notify();
+    notify("WorkItem '" + name + "' is now " + state->process());
 }
 
-/**
- * @brief Subscribes a Participant to this WorkItem's updates.
- *
- * Ignores null pointers and Participants that are already subscribed,
- * so nobody receives the same update twice.
- *
- * @param participant The Participant to subscribe. The WorkItem does not
- *                    take ownership of it.
- */
-void WorkItem::addObserver(Participant* participant) {
-    if (participant == nullptr) {
-        return;
-    }
-    if (std::find(observers.begin(), observers.end(), participant) != observers.end()) {
-        return;
-    }
-    observers.push_back(participant);
-}
+// /**
+//  * @brief Subscribes a Participant to this WorkItem's updates.
+//  *
+//  * Ignores null pointers and Participants that are already subscribed,
+//  * so nobody receives the same update twice.
+//  *
+//  * @param participant The Participant to subscribe. The WorkItem does not
+//  *                    take ownership of it.
+//  */
+// void WorkItem::addObserver(Participant* participant) {
+//     if (participant == nullptr) {
+//         return;
+//     }
+//     if (std::find(observers.begin(), observers.end(), participant) != observers.end()) {
+//         return;
+//     }
+//     observers.push_back(participant);
+// }
 
-/**
- * @brief Unsubscribes a Participant from this WorkItem's updates.
- *
- * Does nothing if the Participant is not subscribed.
- *
- * @param participant The Participant to unsubscribe. It is not deleted.
- */
-void WorkItem::removeObserver(Participant* participant) {
-    std::vector<Participant*>::iterator it =
-        std::find(observers.begin(), observers.end(), participant);
-    if (it != observers.end()) {
-        observers.erase(it);
-    }
-}
+// /**
+//  * @brief Unsubscribes a Participant from this WorkItem's updates.
+//  *
+//  * Does nothing if the Participant is not subscribed.
+//  *
+//  * @param participant The Participant to unsubscribe. It is not deleted.
+//  */
+// void WorkItem::removeObserver(Participant* participant) {
+//     std::vector<Participant*>::iterator it =
+//         std::find(observers.begin(), observers.end(), participant);
+//     if (it != observers.end()) {
+//         observers.erase(it);
+//     }
+// }
 
-/**
- * @brief Pushes an update message to every subscribed Participant.
- *
- * Push model: the message contains the WorkItem's name and current state,
- * so observers get everything they need without querying the WorkItem.
- *
- * Loops over a copy of the observer list, so an observer can safely
- * unsubscribe itself from inside receiveUpdate().
- */
-void WorkItem::notify() {
-    std::string update = "WorkItem '" + name + "' is now " + state->process();
-    std::vector<Participant*> toNotify = observers;
-    for (std::vector<Participant*>::size_type i = 0; i < toNotify.size(); ++i) {
-        toNotify[i]->receiveUpdate(update);
-    }
-}
+// /**
+//  * @brief Pushes an update message to every subscribed Participant.
+//  *
+//  * Push model: the message contains the WorkItem's name and current state,
+//  * so observers get everything they need without querying the WorkItem.
+//  *
+//  * Loops over a copy of the observer list, so an observer can safely
+//  * unsubscribe itself from inside receiveUpdate().
+//  */
+// void WorkItem::notify() {
+//     std::string update = "WorkItem '" + name + "' is now " + state->process();
+//     std::vector<Participant*> toNotify = observers;
+//     for (std::vector<Participant*>::size_type i = 0; i < toNotify.size(); ++i) {
+//         toNotify[i]->receiveUpdate(update);
+//     }
+// }
 
 /**
  * @brief Requests that this WorkItem is blocked, or released if already Blocked.
