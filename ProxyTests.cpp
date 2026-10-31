@@ -9,6 +9,9 @@
 #include "ClientProcessor.h"
 #include "SystemProcessor.h"
 #include "WorkflowProcessor.h"
+#include "OutputRegistry.h"
+#include "WorkItem.h"
+#include "TestHelpers.h"
 
 namespace {
 
@@ -82,4 +85,49 @@ TEST_CASE("ClientProcessor fails safely when it has no real processor") {
 
     CHECK_FALSE(proxy.addRequest("anything"));
     CHECK_NOTHROW(proxy.cancelWork());
+}
+
+TEST_CASE("Through the proxy, only requests that match a registered output get in") {
+    OutputRegistry registry;
+    registry.registerOutput("report", new NamedOutput("report"));
+    registry.registerOutput("invoice", new NamedOutput("invoice"));
+
+    WorkItem item("Task", "description");
+    SystemProcessor real;
+    real.setOutputRegistry(&registry);
+    real.startWorkflow(&item);
+    ClientProcessor proxy(&real);
+
+    CHECK(proxy.addRequest("report"));
+    CHECK(proxy.addRequest("invoice"));
+    CHECK_FALSE(proxy.addRequest("receipt"));
+
+    CHECK(item.getRequests().size() == 2);
+}
+
+TEST_CASE("Through the proxy, requests are refused until a workflow has started") {
+    OutputRegistry registry;
+    registry.registerOutput("report", new NamedOutput("report"));
+
+    WorkItem item("Task", "description");
+    SystemProcessor real;
+    real.setOutputRegistry(&registry);
+    ClientProcessor proxy(&real);
+
+    CHECK_FALSE(proxy.addRequest("report"));
+    CHECK(item.getRequests().empty());
+}
+
+TEST_CASE("Through the proxy, cancelWork cancels the real work item") {
+    WorkItem viaProxy("Task", "description");
+    WorkItem direct("Task", "description");
+    SystemProcessor real;
+    real.startWorkflow(&viaProxy);
+    direct.start();
+    ClientProcessor proxy(&real);
+
+    proxy.cancelWork();
+    direct.cancel();
+
+    CHECK(viaProxy.process() == direct.process());
 }
