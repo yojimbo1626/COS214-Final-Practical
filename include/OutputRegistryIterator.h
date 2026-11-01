@@ -1,10 +1,7 @@
 /**
-    * @class OutputRegistryIterator.cpp
+    * @file OutputRegistryIterator.h
     * @brief This is the ConcreteIterator interface which iterates through the ConcreteAggregate OutputRegistry
-
-    * @date 29 Oct, 17:11
 */
-
 
 #ifndef OUTPUT_REGISTRY_ITERATOR_H
 #define OUTPUT_REGISTRY_ITERATOR_H
@@ -12,6 +9,7 @@
 #include "OutputComponent.h"
 #include "Iterator.h"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -19,12 +17,11 @@ class OutputRegistry;
 
 /**
     * @note uses type OutputComponent because this is for the PrototypeManager
-
 */
 class OutputRegistryIterator : public Iterator<OutputComponent> {
     private:
         std::vector<OutputComponent*> toVisit;
-        size_t current;
+        std::size_t current;
     public:
         OutputRegistryIterator(OutputRegistry* outReg);
         ~OutputRegistryIterator() override;
