@@ -25,7 +25,18 @@ struct MuteCout {
     std::ostringstream sink;
     std::streambuf* old;
     MuteCout() : old(std::cout.rdbuf(sink.rdbuf())) {}
-    ~MuteCout() { std::cout.rdbuf(old); }
+    ~MuteCout() { std::cout.rdbuf(old); forward(sink.str()); }
+    /// Restores std::cout, then re-prints anything that isn't a Worker/Client
+    /// notification, so doctest's own failure reports are never hidden.
+    void forward(const std::string& text) const {
+        std::istringstream lines(text);
+        std::string line;
+        while (std::getline(lines, line)) {
+            if (line.rfind("[Worker #", 0) != 0 && line.rfind("[Client #", 0) != 0) {
+                std::cout << line << '\n';
+            }
+        }
+    }
 };
 
 bool contains(const std::string& text, const std::string& part) {
@@ -74,6 +85,7 @@ TEST_CASE("Strategy: RoleExecution only runs assigned WorkItems") {
     }
     SUBCASE("runs an assigned WorkItem to Completed") {
         WorkItem item("Report", "Write Q3 report");
+        item.start();
         item.assign(&worker);
         std::string result = strategy.execute(&item);
         CHECK(contains(result, "executed by its assigned role"));
@@ -86,23 +98,23 @@ TEST_CASE("Strategy: WorkloadExecution moves a WorkItem forward from where it is
     WorkloadExecution strategy;
     Worker worker("Bob");
 
-    SUBCASE("Assigned is started and completed") {
+    SUBCASE("Available is started, then waits for a Worker") {
         WorkItem item("Report", "Write Q3 report");
-        item.assign(&worker);
-        CHECK(contains(strategy.execute(&item), "started and completed"));
-        CHECK(item.process() == "Completed");
+        CHECK(contains(strategy.execute(&item), "started"));
+        CHECK(item.process() == "InProgress");
     }
-    SUBCASE("InProgress is completed") {
+    SUBCASE("Assigned is completed") {
         WorkItem item("Report", "Write Q3 report");
-        item.assign(&worker);
         item.start();
+        item.assign(&worker);
         CHECK(contains(strategy.execute(&item), "completed"));
         CHECK(item.process() == "Completed");
     }
-    SUBCASE("Available cannot be moved forward") {
+    SUBCASE("InProgress cannot be moved forward without a Worker") {
         WorkItem item("Report", "Write Q3 report");
+        item.start();
         CHECK(contains(strategy.execute(&item), "could not be moved forward"));
-        CHECK(item.process() == "Available");
+        CHECK(item.process() == "InProgress");
     }
 }
 
@@ -113,6 +125,7 @@ TEST_CASE("Strategy: RuleExecution checks its rules before running") {
 
     SUBCASE("missing description fails and leaves the WorkItem Assigned") {
         WorkItem item("Report", "");
+        item.start();
         item.assign(&worker);
         CHECK(contains(strategy.execute(&item), "has no description"));
         CHECK(item.process() == "Assigned");
@@ -124,6 +137,7 @@ TEST_CASE("Strategy: RuleExecution checks its rules before running") {
     }
     SUBCASE("all rules pass and the WorkItem is Completed") {
         WorkItem item("Report", "Write Q3 report");
+        item.start();
         item.assign(&worker);
         CHECK(contains(strategy.execute(&item), "all rules passed"));
         CHECK(item.process() == "Completed");
@@ -144,6 +158,7 @@ TEST_CASE("Strategy: the Worker executes through its current strategy") {
     MuteCout mute;
     Worker worker("Bob");
     WorkItem item("Report", "");
+    item.start();
     item.assign(&worker);
 
     worker.setTaskExecutionStrategy(new RuleExecution());

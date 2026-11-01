@@ -7,7 +7,8 @@
  */
 
 #include "InProgress.h"
-#include "Completed.h"
+#include "Assigned.h"
+#include "Rejected.h"
 #include "WorkItem.h"
 
 /**
@@ -32,47 +33,51 @@ bool InProgress::start(WorkItem* c) {
 }
 
 /**
- * @brief Attempts to assign the WorkItem.
+ * @brief Assigns the WorkItem to a Participant.
  *
- * Not allowed: the WorkItem is already being worked on.
+ * Subscribes the Participant as an observer, then moves the WorkItem from
+ * InProgress to Assigned.
+ *
+ * @param a The WorkItem being assigned.
+ * @param p The Participant receiving the work. Must not be null.
+ * @return true if the WorkItem moved to Assigned, false if a or p is null.
+ */
+bool InProgress::assign(WorkItem* a, Participant* p) {
+    if (a == nullptr || p == nullptr) {
+        return false;
+    }
+    a->addObserver(p);
+    a->setState(new Assigned());
+    return true; // `this` has been deleted, so return immediately
+}
+
+/**
+ * @brief Attempts to complete the WorkItem.
+ *
+ * Not allowed: the WorkItem must be assigned before it can be completed.
  *
  * @param c The WorkItem (unused).
- * @param p The Participant (unused).
  * @return Always false. The state does not change.
  */
-bool InProgress::assign(WorkItem* c, Participant* p) {
+bool InProgress::complete(WorkItem* c) {
     (void)c;
-    (void)p;
     return false;
 }
 
 /**
- * @brief Completes the WorkItem.
+ * @brief Cancels the WorkItem.
  *
- * Moves the WorkItem from InProgress to Completed.
+ * Moves the WorkItem from InProgress to Rejected.
  *
- * @param c The WorkItem being completed.
- * @return true if the WorkItem moved to Completed, false if c is null.
+ * @param c The WorkItem being cancelled.
+ * @return true if the WorkItem moved to Rejected, false if c is null.
  */
-bool InProgress::complete(WorkItem* c) {
+bool InProgress::cancel(WorkItem* c) {
     if (c == nullptr) {
         return false;
     }
-    c->setState(new Completed());
-    return true; // this has been deleted, so return immediately
-}
-
-/**
- * @brief Attempts to cancel the WorkItem.
- *
- * Not allowed: a WorkItem cannot be cancelled once work has started.
- *
- * @param c The WorkItem (unused).
- * @return Always false. The state does not change.
- */
-bool InProgress::cancel(WorkItem* c) {
-    (void)c;
-    return false;
+    c->setState(new Rejected());
+    return true; // `this` has been deleted, so return immediately
 }
 
 /**

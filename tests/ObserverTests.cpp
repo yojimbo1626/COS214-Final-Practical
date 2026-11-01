@@ -24,7 +24,18 @@ struct CaptureCout {
     std::ostringstream buffer;
     std::streambuf* old;
     CaptureCout() : old(std::cout.rdbuf(buffer.rdbuf())) {}
-    ~CaptureCout() { std::cout.rdbuf(old); }
+    ~CaptureCout() { std::cout.rdbuf(old); forward(buffer.str()); }
+    /// Restores std::cout, then re-prints anything that isn't a Worker/Client
+    /// notification, so doctest's own failure reports are never hidden.
+    void forward(const std::string& text) const {
+        std::istringstream lines(text);
+        std::string line;
+        while (std::getline(lines, line)) {
+            if (line.rfind("[Worker #", 0) != 0 && line.rfind("[Client #", 0) != 0) {
+                std::cout << line << '\n';
+            }
+        }
+    }
     std::string text() const { return buffer.str(); }
 };
 
@@ -41,14 +52,14 @@ TEST_CASE("Observer: a subscribed observer receives every state change") {
     Worker worker("Bob");
     item.addObserver(&logger);
 
-    item.assign(&worker);
     item.start();
+    item.assign(&worker);
     item.complete();
 
     std::vector<std::string> log = logger.getLog();
     REQUIRE(log.size() == 3);
-    CHECK(log[0] == "WorkItem 'Report' is now Assigned");
-    CHECK(log[1] == "WorkItem 'Report' is now InProgress");
+    CHECK(log[0] == "WorkItem 'Report' is now InProgress");
+    CHECK(log[1] == "WorkItem 'Report' is now Assigned");
     CHECK(log[2] == "WorkItem 'Report' is now Completed");
 }
 
@@ -57,7 +68,7 @@ TEST_CASE("Observer: a refused request sends no notification") {
     HistoryLogger logger("Audit");
     item.addObserver(&logger);
 
-    CHECK_FALSE(item.start());
+    CHECK_FALSE(item.assign(&logger));
     CHECK_FALSE(item.complete());
 
     CHECK(logger.getLog().empty());
@@ -106,12 +117,14 @@ TEST_CASE("Observer: assigning a Worker subscribes it automatically") {
     WorkItem item("Report", "Write Q3 report");
     Worker worker("Bob");
 
-    item.assign(&worker);
     item.start();
+    item.assign(&worker);
+    item.complete();
 
     std::string out = capture.text();
+    CHECK_FALSE(contains(out, worker.toString() + "] received update: WorkItem 'Report' is now InProgress"));
     CHECK(contains(out, worker.toString() + "] received update: WorkItem 'Report' is now Assigned"));
-    CHECK(contains(out, worker.toString() + "] received update: WorkItem 'Report' is now InProgress"));
+    CHECK(contains(out, worker.toString() + "] received update: WorkItem 'Report' is now Completed"));
 }
 
 TEST_CASE("Observer: Client prints the pushed update") {
@@ -135,6 +148,7 @@ TEST_CASE("Observer: getClient finds the subscribed Client") {
     CHECK(item.getClient() == nullptr);
 
     item.addObserver(&logger);
+    item.start();
     item.assign(&worker);
     CHECK(item.getClient() == nullptr);
 

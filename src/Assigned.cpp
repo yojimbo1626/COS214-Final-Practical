@@ -6,7 +6,7 @@
  */
 
 #include "Assigned.h"
-#include "InProgress.h"
+#include "Completed.h"
 #include "Rejected.h"
 #include "WorkItem.h"
 /**
@@ -18,20 +18,19 @@ std::string Assigned::process() {
 }
 
 /**
- * @brief Starts work on the WorkItem.
+ * @brief Attempts to start the WorkItem.
  *
- * Moves the WorkItem from Assigned to InProgress.
+ * Not allowed: the WorkItem has already been started.
  *
- * @param c The WorkItem being started.
- * @return true if the WorkItem moved to InProgress, false if c is null.
+ * @param s The WorkItem (unused).
+ * @return Always false. The state does not change.
  */
-bool Assigned::start(WorkItem* c) {
-    if (c == nullptr) {
-        return false;
-    }
-    c->setState(new InProgress());
-    return true; // this has been deleted so return
+bool Assigned::start(WorkItem* s) {
+    (void)s;
+    return false;
 }
+
+
 
 /**
  * @brief Attempts to assign the WorkItem again.
@@ -49,16 +48,19 @@ bool Assigned::assign(WorkItem* c, Participant* p) {
 }
 
 /**
- * @brief Attempts to complete the WorkItem.
+ * @brief Completes the WorkItem.
  *
- * Not allowed: work must be started before it can be completed.
+ * Moves the WorkItem from Assigned to Completed.
  *
- * @param c The WorkItem (unused).
- * @return Always false. The state does not change.
+ * @param c The WorkItem being completed.
+ * @return true if the WorkItem moved to Completed, false if c is null.
  */
 bool Assigned::complete(WorkItem* c) {
-    (void)c;
-    return false;
+    if (c == nullptr) {
+        return false;
+    }
+    c->setState(new Completed());
+    return true; // `this` has been deleted, so return immediately
 }
 
 /**
