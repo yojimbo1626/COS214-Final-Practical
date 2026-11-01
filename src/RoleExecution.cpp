@@ -26,11 +26,9 @@ std::string RoleExecution::execute(WorkItem* w) {
         return "RoleExecution: '" + w->getName() + "' is not assigned (state: "
                + w->process() + ")";
     }
-    if (!w->start()) {
-        return "RoleExecution: could not start '" + w->getName() + "'";
-    }
+    
     if (!w->complete()) {
-        return "RoleExecution: started but could not complete '" + w->getName() + "'";
+        return "RoleExecution: could not complete '" + w->getName() + "'";
     }
     return "RoleExecution: '" + w->getName() + "' executed by its assigned role";
 }

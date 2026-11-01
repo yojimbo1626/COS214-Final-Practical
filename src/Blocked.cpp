@@ -6,13 +6,13 @@
  * finish. It cannot be assigned, started or completed until it is released.
  *
  * Transitions:
- * - Blocked to blocked() = Blocked (item is waiting on prerequisites)
- * - Blocked to blocked() = Blocked (prerequisites done, item released)
- * - Blocked tocancel() = Rejected (cancelled before work started)
+ * - Available to blocked() = Blocked (item is waiting on prerequisites)
+ * - Blocked to blocked() = Available (prerequisites done, item released)
+ * - Blocked to cancel() = Rejected (cancelled before work started)
  */
 
 #include "Blocked.h"
-#include "Blocked.h"
+#include "Available.h"
 #include "Rejected.h"
 #include "WorkItem.h"
 
@@ -41,7 +41,7 @@ bool Blocked::start(WorkItem* s) {
  * @brief Attempts to assign the WorkItem.
  *
  * Not allowed: the WorkItem is waiting for its prerequisites. It must be
- * released (back to Blocked) before it can be assigned.
+ * released (back to Available) before it can be assigned.
  *
  * @param a The WorkItem (unused).
  * @param p The Participant (unused).
@@ -87,16 +87,16 @@ bool Blocked::complete(WorkItem* c) {
  * @brief Releases the WorkItem once its prerequisites are done.
  *
  * Calling blocked() on a Blocked WorkItem toggles it back: it moves from
- * Blocked to Blocked, where it can be assigned as normal.
+ * Blocked to Available, where it can be assigned as normal.
  *
  * @param b The WorkItem being released.
- * @return true if the WorkItem moved to Blocked, false if b is null.
+ * @return true if the WorkItem moved to Available, false if b is null.
  */
 bool Blocked::blocked(WorkItem* b) {
     if (b == nullptr) {
         return false;
     }
-    b->setState(new Blocked());
+    b->setState(new Available());
     return true; // `this` has been deleted, so return immediately
 }
 
