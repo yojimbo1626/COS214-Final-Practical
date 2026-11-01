@@ -3,21 +3,28 @@
 
 #include <string>
 #include <vector>
+
+
 #include "WorkUnit.h"
 
 class WorkItemState;
+class WorkItemSnapshot;
 class Participant;
 
 /**
  * @brief Context in the State pattern, and Subject / ConcreteSubject in the
  *        Observer pattern.
- */
+ */   
+
 class WorkItem : public WorkUnit {
 public:
     WorkItem(std::string name, std::string description);
     WorkItem(const WorkItem& workItem);
     ~WorkItem();
     WorkItem& operator=(const WorkItem&) = delete;
+  
+    WorkItemSnapshot* createSnapshot();
+    void setSnapshot(WorkItemSnapshot* snapshot);
 
     std::string getName() const;
     std::string getDescription() const;

@@ -15,6 +15,7 @@
 #include "WorkItemState.h"
 #include "Available.h"
 #include "Client.h"
+#include "WorkItemSnapshot.h"
 
 /**
  * @brief Creates a WorkItem in the Available state.
@@ -23,6 +24,27 @@
  */
 WorkItem::WorkItem(std::string name, std::string description)
     : name(name), description(description), state(new Available()) {}
+  
+  
+/**
+ * @brief Creates a snapshot of the work item's current data and state.
+ * @return A pointer to the newly created WorkItemSnapshot.
+ */
+WorkItemSnapshot* WorkItem::createSnapshot() {
+    return new WorkItemSnapshot(requests, state->clone());
+}
+
+
+/**
+ * @brief Restores the work item's data and state from a snapshot.
+ * @param snapshot Pointer to the snapshot containing the data to restore.
+ */
+void WorkItem::setSnapshot(WorkItemSnapshot* snapshot) {
+    if (snapshot == nullptr) return;
+    requests = snapshot->requests;
+    setState(snapshot->state);
+    delete snapshot;
+}
 
 /**
  * @brief Copy constructor.
