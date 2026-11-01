@@ -14,7 +14,7 @@
 #include <iostream>
 
 /**
- * @brief Creates a Worker that starts with the RoleExecution strategy.
+ * @brief Creates a Worker that starts with the RoleExecution strategy, one of the concrete strategies.
  * @param name The Worker's name.
  * @todo Pass name to Participant(name) once Worker inherits from Participant.
  */
