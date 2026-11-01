@@ -28,10 +28,10 @@ public:
 
     std::string getName() const;
     std::string getDescription() const;
-    Participant* getClient() const;
+    Client* getClient() const;
     
-    //std::vector<std::string> getRequests() const;
-    //void addRequest(std::string request);
+    std::vector<std::string> getRequests() const;
+    void addRequest(std::string request);
 
     // State requests: each one forwards to the current state
     bool start();
