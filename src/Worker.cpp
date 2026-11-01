@@ -9,6 +9,15 @@
  */
 
 #include "Worker.h"
+#include "Client.h"
+#include "OutputProducer.h"
+#include "WorkOutput.h"
+#include "WorkOutputFeature.h"
+#include "OutputRegistry.h"
+#include "SystemProcessor.h"
+#include "ClientProcessor.h"
+#include "WorkItem.h"
+#include "WorkItemHistory.h"
 #include "TaskExecutionStrategy.h"
 #include "RoleExecution.h"
 #include <iostream>
@@ -19,14 +28,113 @@
  * @todo Pass name to Participant(name) once Worker inherits from Participant.
  */
 Worker::Worker(std::string name)
-    : Participant(name), taskExecutionStrategy(new RoleExecution()) {}
+    : Participant(name), producer(new OutputProducer), registry(nullptr), processor(nullptr), 
+      taskExecutionStrategy(new RoleExecution()) {}
 
 /**
  * @brief Destroys the Worker and the strategy it owns.
  */
 Worker::~Worker() {
+    delete producer;
     delete taskExecutionStrategy;
 }
+
+void Worker::assignProcessor(SystemProcessor* processor) {
+    this->processor = processor;
+}
+
+ClientProcessor* Worker::createClientProcessor() {
+    if (processor == nullptr) {
+        processor = new SystemProcessor;
+        processor->startWorkflow(new WorkItem(workItemName, workItemDescription));
+        return new ClientProcessor(processor);
+    }   
+    else 
+        return nullptr;
+}
+
+bool Worker::assignWorkItem(Worker* worker) {
+    if (processor != nullptr && processor->assignWorkItem(worker)) 
+        processor = nullptr;
+    else  
+        return false; 
+}
+
+bool Worker::completeWorkItem() {
+    if (processor != nullptr) {
+        if (processor->workItem != nullptr && processor->workItem->getClient() != nullptr) {
+            taskExecutionStrategy->execute(processor->workItem);
+            processor->workItem->getClient()->receiveResults(processor->produceOutput());
+            return processor->completeWork();
+        }
+    }
+    return false;
+}
+
+void Worker::undoLastAction() {
+    if (processor != nullptr && processor->workItem != nullptr && processor->workItemHistory != nullptr) {
+        processor->workItem->setSnapshot(processor->workItemHistory->undo());
+    }
+}
+
+void Worker::rejectWorkItem() {
+    if (processor != nullptr) processor->cancelWork();
+}
+
+std::string Worker::getWorkItemName() const {
+    return workItemName;
+}
+
+std::string Worker::getWorkItemDescription() const {
+    return workItemDescription;
+}
+
+void Worker::setWorkItemDescription(std::string workItemDescription) {
+    this->workItemDescription = workItemDescription;
+}
+
+void Worker::setRegistry(OutputRegistry* registry) {
+    this->registry = registry;
+}
+
+bool Worker::addToRegistry(std::string output, std::vector<std::string> features, bool client) {
+    if (registry == nullptr || (client && processor == nullptr))
+        return false;
+
+    OutputComponent* product = nullptr;
+
+    if (client) {
+        product = registry->createOutput(output);
+    }
+    else {
+        product = producer->produceOutput(output);
+    }
+    if (product == nullptr || dynamic_cast<WorkOutput*>(product) == nullptr) {
+        delete product;
+        return false;
+    }
+
+    for (size_t i = 0; i < features.size(); i++) {
+        if (client) {
+            OutputComponent* registeredFeature = registry->createOutput(features[i]);
+            if (registeredFeature == nullptr || dynamic_cast<OutputFeature*>(registeredFeature) == nullptr) {
+                delete registeredFeature;
+                delete product;
+                return false;
+            }
+            delete registeredFeature;
+        }
+        WorkOutputFeature* feature = new WorkOutputFeature(features[i]);
+        feature->add(product);
+        product = feature;
+    }
+    registry->registerOutput(product->printOutput(), product);
+    if (client) {
+        return processor->addRequest(product->printOutput());
+    }
+    return true;
+}
+
 
 /**
  * @brief Returns the current execution strategy.

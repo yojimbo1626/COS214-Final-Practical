@@ -87,11 +87,10 @@ bool SystemProcessor::completeWork() {
     if (workflowController == nullptr || workItem == nullptr)
         return false;
 
-    workItemHistory->save(workItem->createSnapshot());
-
     if (!workflowController->completeWorkItem())
         return false;
 
+    workItemHistory->save(workItem->createSnapshot());
     workItem = nullptr;
     return true;
 }
