@@ -88,13 +88,13 @@ public:
      * @param requests A vector containing the requests to be processed.
      * @return True if the work item is processed successfully, false otherwise.
      */
-    bool processWorkItem(Worker* worker, Client* client, vector<string> requests);
+    bool processWorkItem(Worker* worker, Client* client, std::vector<std::string> requests);
 
     /**
      * @brief Creates outputs for each request associated with the current work item.
      * @return A vector of pointers to the created output components.
      */
-    vector<OutputComponent*> produceOutput();
+    std::vector<OutputComponent*> produceOutput();
 
     /**
      * @brief Prints the current work item's details and status.

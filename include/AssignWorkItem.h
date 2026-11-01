@@ -13,6 +13,9 @@ class Participant;
  * defineWorker() to say who is being assigned, then execute().
  */
 class AssignWorkItem : public Command {
+private:
+    Participant* worker; ///< Who the work item is assigned to. set by defineWorker(), nullptr until assigned.
+
 public:
     /**
      * @brief Creates an AssignWorkItem command.

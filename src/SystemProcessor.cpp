@@ -16,11 +16,11 @@ SystemProcessor::~SystemProcessor() {
     delete workItemHistory;
 }
 
-vector<string> SystemProcessor::getAvailableOutputs() {
+std::vector<string> SystemProcessor::getAvailableOutputs() {
     if (outputRegistry == nullptr) 
-        return vector<string>();
+        return std::vector<string>();
 
-    vector<string> outputs;
+    std::vector<string> outputs;
     Iterator<OutputComponent>* it = outputRegistry->createIterator();
 
     for (OutputComponent* component = it->first();
@@ -95,53 +95,53 @@ bool SystemProcessor::completeWork() {
     return true;
 }
 
-bool SystemProcessor::processWorkItem(Worker* worker, Client* client, vector<string> requests) {
+bool SystemProcessor::processWorkItem(Worker* worker, Client* client, std::vector<std::string> requests) {
     if (!worker || !client) {
-        cout << "Failed to process work item.\n";
+        std::cout << "Failed to process work item.\n";
         return false;
     }
     WorkItem* newWorkItem = new WorkItem(worker->getWorkItemName(), worker->getWorkItemDescription());
 
-    cout << "==========\nPROCESSING WORK ITEM\n==========\n\n";
+    std::cout << "==========\nPROCESSING WORK ITEM\n==========\n\n";
     if (!startWorkflow(newWorkItem)) {
-        cout << "Failed to process work item.\n";
+        std::cout << "Failed to process work item.\n";
         workItem = nullptr;
         delete newWorkItem;
         return false;
     }
         
     if (!assignWorkItem(worker)) {
-        cout << "Failed to process work item.\n";
+        std::cout << "Failed to process work item.\n";
         cancelWork();
         delete newWorkItem;
         return false;
     }
 
     client->requestProcessor(worker);
-    for (string request : requests) {
+    for (std::string request : requests) {
         if (!client->addRequest(request)) {
-            cout << "Failed to process work item.\n";
+            std::cout << "Failed to process work item.\n";
             cancelWork();
             delete newWorkItem;
             return false;
         }
     }
     printWorkItem();
-    cout << endl;
+    std::cout << endl;
 
     if (!worker->completeWorkItem()) {
-        cout << "Failed to process work item.\n";
+        std::cout << "Failed to process work item.\n";
         cancelWork();
         delete newWorkItem;
         return false;
     }
-    cout << "==========\n";
+    std::cout << "==========\n";
     delete newWorkItem;
     return true;
 }
 
-vector<OutputComponent*> SystemProcessor::produceOutput() {
-    vector<OutputComponent*> outputs;
+std::vector<OutputComponent*> SystemProcessor::produceOutput() {
+    std::vector<OutputComponent*> outputs;
     if (workItem == nullptr || outputRegistry == nullptr) return outputs;
     for (const string& request : workItem->getRequests()) 
         outputs.push_back(outputRegistry->createOutput(request));
@@ -150,36 +150,36 @@ vector<OutputComponent*> SystemProcessor::produceOutput() {
 
 void SystemProcessor::printWorkItem() {
     if (workItem == nullptr) {
-        cout << "No work item available." << endl;
+        std::cout << "No work item available." << endl;
         return;
     }
 
-    cout << "\n========== Work Item ==========" << endl;
+    std::cout << "\n========== Work Item ==========" << endl;
 
-    cout << "Name: " << workItem->getName() << endl;
-    cout << "Description: " << workItem->getDescription() << endl;
+    std::cout << "Name: " << workItem->getName() << endl;
+    std::cout << "Description: " << workItem->getDescription() << endl;
 
-    cout << "\nRequests:" << endl;
-    vector<string> requests = workItem->getRequests();
+    std::cout << "\nRequests:" << endl;
+    std::vector<string> requests = workItem->getRequests();
 
     if (requests.empty()) {
-        cout << "  No requests." << endl;
+        std::cout << "  No requests." << endl;
     } else {
         for (size_t i = 0; i < requests.size(); i++) {
-            cout << "  - " << requests[i] << endl;
+            std::cout << "  - " << requests[i] << endl;
         }
     }
 
-    cout << "\nClient: ";
+    std::cout << "\nClient: ";
     if (workItem->getClient() != nullptr)
-        cout << workItem->getClient()->getName() << endl;
+        std::cout << workItem->getClient()->getName() << endl;
     else
-        cout << "No client assigned." << endl;
+        std::cout << "No client assigned." << endl;
 
-    cout << "\nCurrent Status: "
+    std::cout << "\nCurrent Status: "
          << workItem->getState()->process() << endl;
 
-    cout << "======================================" << endl;
+    std::cout << "======================================" << endl;
 }
 
 void SystemProcessor::setOutputRegistry(OutputRegistry* outputRegistry) {
