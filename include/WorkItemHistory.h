@@ -3,7 +3,6 @@
 
 #include "WorkItemSnapshot.h"
 
-using namespace std;
 
 /**
  * @class WorkItemHistory
@@ -15,7 +14,7 @@ using namespace std;
 class WorkItemHistory {
     private:
         /** The collection of snapshots stored in the work item's history. */
-        vector<WorkItemSnapshot*> history;
+        std::vector<WorkItemSnapshot*> history;
         
     public:
         /**

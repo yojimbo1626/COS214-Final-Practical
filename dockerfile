@@ -8,7 +8,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY . .
 
-# Configure and build all targets: engine, unit_tests, tividy_gui, tividy_tui
+# Configure and build all targets: engine, unit_tests, tividy_gui
 RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
  && cmake --build build -j"$(nproc)"
 

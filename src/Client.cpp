@@ -9,6 +9,7 @@
 #include "Client.h"
 #include "Worker.h"
 #include "ClientProcessor.h"
+#include "OutputComponent.h"
 #include <iostream>
 
 /**
@@ -21,11 +22,15 @@ Client::Client(std::string name)
 /**
  * @brief Destroys the Client.
  */
-Client::~Client() {}
+Client::~Client() {
+    delete processor;
+}
 
 void Client::requestProcessor(Worker* worker) {
-    if (worker)
-        processor = worker->createClientProcessor();
+    if (worker == nullptr)
+        return;
+    delete processor;   // drop the proxy for any previous work item
+    processor = worker->createClientProcessor();
 }
 
 void Client::viewAvailableOutputs() {
@@ -42,22 +47,31 @@ void Client::viewAvailableOutputs() {
 }
 
 bool Client::addRequest(std::string request) {
-    if (processor)
-        return processor->addRequest(request);
+    if (processor == nullptr)
+        return false;
+    return processor->addRequest(request);
 }
 
 bool Client::addSpecialRequest(Worker* worker, std::string output, std::vector<std::string> features) {
-    if (processor)
-        return worker->addToRegistry(output, features);
+    if (processor == nullptr || worker == nullptr)
+        return false;
+    return worker->addToRegistry(output, features);
 }
 
 void Client::receiveResults(std::vector<OutputComponent*> outputs) {
-    for (OutputComponent* output : outputs)
-        delete output;
+    std::cout << "[" << toString() << "] received " << outputs.size() << " output(s):" << std::endl;
+    for (OutputComponent* output : outputs) {
+        if (output == nullptr) continue;
+        std::cout << "  - " << output->printOutput() << std::endl;
+        delete output;   // the client owns the finished outputs
+    }
+    delete processor;    // the work is finished, so the client no longer needs its proxy
     processor = nullptr;
 }
 
 void Client::cancelWork() {
+    if (processor == nullptr)
+        return;
     processor->cancelWork();
 }
 
