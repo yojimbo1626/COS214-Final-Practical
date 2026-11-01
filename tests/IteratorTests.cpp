@@ -2,8 +2,17 @@
  * @file IteratorTests.cpp
  * @brief Unit tests for the Iterator pattern (Iterator<Item>, Registry<Item>, OutputRegistryIterator).
  *
- * 
+ * How the iterator behaves:
+ *   - first()   puts the cursor on the first output and returns it (nullptr if empty)
+ *   - hasNext() is true while there is another output AFTER the cursor
+ *   - next()    moves the cursor forward and returns that output. From the LAST output
+ *               it wraps round and returns the first output again (nullptr if empty).
+ *
  * Outputs are visited in name order, because the registry keeps them in a std::map.
+ *
+ * registry.createIterator() returns the base type Iterator<OutputComponent>*, so the
+ * tests hold iterators as that type (only the direct-construction test names the
+ * concrete OutputRegistryIterator).
  *
  * Because next() wraps instead of returning nullptr, every loop in these tests is
  * guarded by hasNext() (a loop that only waits for nullptr would never end).
@@ -12,9 +21,9 @@
 #include <string>
 #include <vector>
 
-#include "doctest/doctest.h"
+#include "doctest.h"
 
-#include "OutputRegistry.h"  // keep this first: these headers include each other
+#include "OutputRegistry.h"  
 #include "OutputRegistryIterator.h"
 #include "Iterator.h"
 #include "Registry.h"
@@ -30,6 +39,7 @@ namespace {
 OutputComponent* addOutput(OutputRegistry& registry, const std::string& name) {
     OutputComponent* component = new NamedOutput(name);
     registry.registerOutput(name, component);
+    
     return component;
 }
 
@@ -39,18 +49,23 @@ OutputComponent* addOutput(OutputRegistry& registry, const std::string& name) {
 std::vector<OutputComponent*> visitAll(Iterator<OutputComponent>& it) {
     std::vector<OutputComponent*> visited;
     OutputComponent* c = it.first();
-    if (c == nullptr) return visited;
+    if (c == nullptr)
+        return visited;
+
     visited.push_back(c);
-    while (it.hasNext()) {
+
+    while (it.hasNext())
+    {
         visited.push_back(it.next());
     }
     return visited;
 }
 
 }  
+
 TEST_CASE("Iterator over an empty registry has nothing to visit") {
     OutputRegistry registry;
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK_FALSE(it->hasNext());
     CHECK(it->first() == nullptr);
@@ -60,7 +75,7 @@ TEST_CASE("Iterator over an empty registry has nothing to visit") {
 TEST_CASE("Iterator over a registry with one output visits just that output") {
     OutputRegistry registry;
     OutputComponent* only = addOutput(registry, "only");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK(it->first() == only);
     CHECK_FALSE(it->hasNext());
@@ -69,7 +84,7 @@ TEST_CASE("Iterator over a registry with one output visits just that output") {
 TEST_CASE("With one output, next() wraps straight back to that same output") {
     OutputRegistry registry;
     OutputComponent* only = addOutput(registry, "only");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK(it->first() == only);
     CHECK(it->next() == only);
@@ -77,12 +92,13 @@ TEST_CASE("With one output, next() wraps straight back to that same output") {
     CHECK_FALSE(it->hasNext());
 }
 
+
 TEST_CASE("first() returns the output that comes first by name") {
     OutputRegistry registry;
     addOutput(registry, "charlie");
     OutputComponent* alpha = addOutput(registry, "alpha");
     addOutput(registry, "bravo");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK(it->first() == alpha);
 }
@@ -92,7 +108,7 @@ TEST_CASE("next() walks the outputs in name order and hasNext() stops at the las
     OutputComponent* charlie = addOutput(registry, "charlie");
     OutputComponent* alpha = addOutput(registry, "alpha");
     OutputComponent* bravo = addOutput(registry, "bravo");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK(it->first() == alpha);
     CHECK(it->hasNext());
@@ -110,7 +126,7 @@ TEST_CASE("A full walk visits every output exactly once, in order") {
     expected.push_back(addOutput(registry, "o3"));
     expected.push_back(addOutput(registry, "o4"));
     expected.push_back(addOutput(registry, "o5"));
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     std::vector<OutputComponent*> visited = visitAll(*it);
 
@@ -121,7 +137,7 @@ TEST_CASE("hasNext() only looks ahead, it does not move the cursor") {
     OutputRegistry registry;
     OutputComponent* alpha = addOutput(registry, "alpha");
     OutputComponent* bravo = addOutput(registry, "bravo");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     CHECK(it->first() == alpha);
     CHECK(it->hasNext());
@@ -136,7 +152,7 @@ TEST_CASE("next() from the last output wraps round to the first") {
     OutputComponent* alpha = addOutput(registry, "alpha");
     OutputComponent* bravo = addOutput(registry, "bravo");
     OutputComponent* charlie = addOutput(registry, "charlie");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     it->first();
     it->next();
@@ -144,7 +160,6 @@ TEST_CASE("next() from the last output wraps round to the first") {
     CHECK_FALSE(it->hasNext());
 
     CHECK(it->next() == alpha);
-
     CHECK(it->hasNext());
     CHECK(it->next() == bravo);
 }
@@ -154,7 +169,7 @@ TEST_CASE("first() restarts the walk after the iterator has reached the end") {
     OutputComponent* alpha = addOutput(registry, "alpha");
     addOutput(registry, "bravo");
     addOutput(registry, "charlie");
-    std::unique_ptr<OutputRegistryIterator> it(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > it(registry.createIterator());
 
     visitAll(*it);
     CHECK_FALSE(it->hasNext());
@@ -169,8 +184,8 @@ TEST_CASE("Iterators from the same registry do not affect each other") {
     OutputComponent* alpha = addOutput(registry, "alpha");
     addOutput(registry, "bravo");
     addOutput(registry, "charlie");
-    std::unique_ptr<OutputRegistryIterator> one(registry.createIterator());
-    std::unique_ptr<OutputRegistryIterator> two(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > one(registry.createIterator());
+    std::unique_ptr<Iterator<OutputComponent> > two(registry.createIterator());
 
     CHECK(one.get() != two.get());
 
