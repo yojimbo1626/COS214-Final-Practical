@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+
+#include "WorkUnit.h"
+
 class WorkItemState;
 class WorkItemSnapshot;
 class Participant;
@@ -11,15 +14,41 @@ class Participant;
 /**
  * @brief Context in the State pattern, and Subject / ConcreteSubject in the
  *        Observer pattern.
- */
-class WorkItem {
-    public:
-        WorkItemSnapshot* createSnapshot();
-        void setSnapshot(WorkItemSnapshot* snapshot);
+ */   
 
-    private:
-        WorkItemState* state;
-        std::vector<std::string> requests;
+class WorkItem : public WorkUnit {
+public:
+    WorkItem(std::string name, std::string description);
+    WorkItem(const WorkItem& workItem);
+    ~WorkItem();
+    WorkItem& operator=(const WorkItem&) = delete;
+  
+    WorkItemSnapshot* createSnapshot();
+    void setSnapshot(WorkItemSnapshot* snapshot);
+
+    std::string getName() const;
+    std::string getDescription() const;
+    Participant* getClient() const;
+    
+    //std::vector<std::string> getRequests() const;
+    //void addRequest(std::string request);
+
+    // State requests: each one forwards to the current state
+    bool start();
+    bool assign(Participant* p);
+    bool complete();
+    bool cancel();
+    std::string process();
+    bool blocked();
+
+    WorkItemState* getState() const;
+    void setState(WorkItemState* state); // deletes the old state, then notifies
+
+private:
+    std::string name;
+    std::string description;
+    WorkItemState* state;
+    std::vector<std::string> requests;
 };
 
 #endif
