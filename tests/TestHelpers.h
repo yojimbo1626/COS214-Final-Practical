@@ -1,6 +1,10 @@
 /**
  * @file TestHelpers.h
- * @brief Small helpers shared by the Facade and Proxy tests.
+ * @brief Shared test doubles for the unit tests (FacadeTests, ProxyTests, IteratorTests).
+ *
+ * This is a header, not a test file, so CMake's tests/*.cpp glob does not compile it on its own.
+ * The test files include it with #include "TestHelpers.h", which the compiler finds in the
+ * same folder as the test file.
  */
 #ifndef TEST_HELPERS_H
 #define TEST_HELPERS_H
@@ -11,28 +15,24 @@
 
 /**
  * @class NamedOutput
- * @brief An OutputComponent whose toString() is exactly the text it was given.
+ * @brief Minimal OutputComponent for tests: printOutput() returns just its name.
  *
- * SystemProcessor::addRequest compares the request with each output's toString(),
- * so the tests need outputs whose text they control.
- *
- * ADJUST IF NEEDED: this assumes OutputComponent has a constructor that takes a
- * name and a virtual toString(). If your OutputComponent is abstract, also
- * implement its pure virtual functions here (for example printOutput and clone).
+ * The tests use it so that they don't depend on WorkOutput's "Output #n: name" text,
+ * which changes with the global output counter.
  */
 class NamedOutput : public OutputComponent {
-private:
-    std::string text; ///< The text returned by toString().
-
 public:
-    /**
-     * @brief Creates an output with the given text.
-     * @param text The text toString() will return.
-     */
-    explicit NamedOutput(const std::string& text) : OutputComponent(text), text(text) {}
+    /** @param name Name of the output. also what printOutput() returns. */
+    explicit NamedOutput(const std::string& name) : OutputComponent(name), name(name) {}
 
-    /** @brief Returns the text this output was created with. */
-    std::string toString() override { return text; }
+    /** @return The name given to the constructor. */
+    std::string printOutput() const override { return name; }
+
+    /** @return A new NamedOutput with the same name, owned by the caller. */
+    OutputComponent* clone() const override { return new NamedOutput(name); }
+
+private:
+    std::string name; ///< Copy of the name, since OutputComponent keeps its own name private.
 };
 
 #endif
