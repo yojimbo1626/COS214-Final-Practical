@@ -11,7 +11,7 @@ The engine is built from **11 Gang of Four design patterns** (see [Design patter
 
 ## System report
 
-- 📄 Final report (PDF): [`report/`](report/)
+- 📄 Final report (PDF): [[`report/`](report/)](https://docs.google.com/document/d/1N_PeSxPsGrc7koyDV58-MfS9dqtkm5GRdOBVOaCl76U/edit?tab=t.0)
 - 📝 Working document: https://docs.google.com/document/d/1N_PeSxPsGrc7koyDV58-MfS9dqtkm5GRdOBVOaCl76U/edit?tab=t.0
 - 🧩 UML class diagram: [`UML/TIVIDY Class Diagram.jpg`](UML/TIVIDY%20Class%20Diagram.jpg)
 - 📚 Code documentation (Doxygen): [`docs/html/index.html`](docs/html/index.html)
