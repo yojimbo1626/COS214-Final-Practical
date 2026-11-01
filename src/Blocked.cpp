@@ -8,7 +8,7 @@
  * Transitions:
  * - Available to blocked() = Blocked (item is waiting on prerequisites)
  * - Blocked to blocked() = Available (prerequisites done, item released)
- * - Blocked tocancel() = Rejected (cancelled before work started)
+ * - Blocked to cancel() = Rejected (cancelled before work started)
  */
 
 #include "Blocked.h"
@@ -98,4 +98,18 @@ bool Blocked::blocked(WorkItem* b) {
     }
     b->setState(new Available());
     return true; // `this` has been deleted, so return immediately
+}
+
+/**
+ * @brief Creates an independent copy of this state.
+ *
+ * Used by WorkItem::createSnapshot() (Memento). A snapshot must own its own
+ * state object, because the WorkItem deletes its current state on every
+ * transition: storing the WorkItem's own pointer would leave the snapshot
+ * pointing at deleted memory.
+ *
+ * @return A new Blocked object. The caller takes ownership of it.
+ */
+WorkItemState* Blocked::clone() {
+    return new Blocked();
 }

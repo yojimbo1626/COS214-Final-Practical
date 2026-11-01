@@ -28,11 +28,11 @@ std::string WorkloadExecution::execute(WorkItem* w) {
     std::string log = "WorkloadExecution: '" + w->getName() + "'";
     bool didSomething = false;
 
-    if (w->process() == "Assigned" && w->start()) {
+    if (w->process() == "Available" && w->start()) {
         log += " started";
         didSomething = true;
     }
-    if (w->process() == "InProgress" && w->complete()) {
+    if (w->process() == "Assigned" && w->complete()) {
         log += didSomething ? " and completed" : " completed";
         didSomething = true;
     }

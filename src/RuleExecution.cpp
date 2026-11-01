@@ -34,7 +34,7 @@ std::string RuleExecution::execute(WorkItem* w) {
         return "RuleExecution: rule failed, '" + w->getName()
                + "' must be Assigned (state: " + w->process() + ")";
     }
-    if (!w->start() || !w->complete()) {
+    if (!w->complete()) {
         return "RuleExecution: rules passed but '" + w->getName() + "' could not be executed";
     }
     return "RuleExecution: all rules passed, '" + w->getName() + "' executed";

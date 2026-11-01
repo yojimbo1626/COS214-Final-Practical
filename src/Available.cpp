@@ -7,7 +7,7 @@
  */
 
 #include "Available.h"
-#include "Assigned.h"
+#include "InProgress.h"
 #include "Rejected.h"
 #include "WorkItem.h"
 #include "Blocked.h"
@@ -21,37 +21,34 @@ std::string Available::process() {
 }
 
 /**
- * @brief Attempts to start the WorkItem.
+ * @brief Starts the WorkItem.
  *
- * Not allowed: a WorkItem must be assigned before work can start.
+ * Moves the WorkItem from Available to InProgress.
  *
- * @param s The WorkItem (unused).
- * @return Always false. The state does not change.
+ * @param s The WorkItem being started.
+ * @return true if the WorkItem moved to InProgress, false if s is null.
  */
 bool Available::start(WorkItem* s) {
-    (void)s;
-    return false;
+    if (s == nullptr) {
+        return false;
+    }
+    s->setState(new InProgress());
+    return true; // `this` has been deleted, so return immediately
 }
 
 /**
- * @brief Assigns the WorkItem to a Participant.
+ * @brief Attempts to assign the WorkItem.
  *
- * Subscribes the Participant to the WorkItem (so it is notified of every
- * change from now on), then moves the WorkItem from Available to Assigned.
- * Because the Participant is subscribed first, it receives the
- * "now Assigned" update too.
+ * Not allowed: the WorkItem must be started before it can be assigned.
  *
- * @param a The WorkItem being assigned.
- * @param p The Participant receiving the work. Must not be null.
- * @return true if the WorkItem moved to Assigned, false if a or p is null.
+ * @param a The WorkItem (unused).
+ * @param p The Participant (unused).
+ * @return Always false. The state does not change.
  */
 bool Available::assign(WorkItem* a, Participant* p) {
-    if (a == nullptr || p == nullptr) {
-        return false;
-    }
-    a->addObserver(p);
-    a->setState(new Assigned());
-    return true; //  this  has been deleted, so return immediately
+    (void)a;
+    (void)p;
+    return false;
 }
 
 /**
@@ -98,4 +95,18 @@ bool Available::blocked(WorkItem* b) {
     }
     b->setState(new Blocked());
     return true; // `this` has been deleted, so return immediately
+}
+
+/**
+ * @brief Creates an independent copy of this state.
+ *
+ * Used by WorkItem::createSnapshot() (Memento). A snapshot must own its own
+ * state object, because the WorkItem deletes its current state on every
+ * transition: storing the WorkItem's own pointer would leave the snapshot
+ * pointing at deleted memory.
+ *
+ * @return A new Available object. The caller takes ownership of it.
+ */
+WorkItemState* Available::clone() {
+    return new Available();
 }
