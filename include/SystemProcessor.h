@@ -10,6 +10,7 @@
 class WorkItem;
 class WorkflowController;
 class OutputRegistry;
+class OutputComponent;
 class Worker;
 class Client;
 class WorkItemHistory;
@@ -41,7 +42,7 @@ public:
      * @return A vector containing the descriptions of the available outputs.
      *         Returns an empty vector if no output registry is available.
      */
-    vector<string> getAvailableOutputs();
+    std::vector<std::string> getAvailableOutputs();
 
     /**
      * @brief Adds a request to the current work item.

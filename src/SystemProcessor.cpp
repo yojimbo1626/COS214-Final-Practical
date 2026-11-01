@@ -17,13 +17,16 @@ SystemProcessor::~SystemProcessor() {
 }
 
 vector<string> SystemProcessor::getAvailableOutputs() {
-    if (outputRegistry == nullptr) return vector<string>();
+    if (outputRegistry == nullptr) 
+        return vector<string>();
 
     vector<string> outputs;
-    OutputRegistryIterator* it = outputRegistry->createIterator();
+    Iterator<OutputComponent>* it = outputRegistry->createIterator();
 
-    while (it->hasNext()) {
-        outputs.push_back(it->next()->printOutput());
+    for (OutputComponent* component = it->first();
+         component != nullptr;
+         component = it->hasNext() ? it->next() : nullptr) {
+        outputs.push_back(component->printOutput());
     }
 
     delete it;
@@ -31,22 +34,15 @@ vector<string> SystemProcessor::getAvailableOutputs() {
 }
 
 bool SystemProcessor::addRequest(std::string request) {
-    if (outputRegistry == nullptr || workflowController == nullptr || workItem == nullptr) 
+    if (outputRegistry == nullptr || workflowController == nullptr || workItem == nullptr)
         return false;
 
-    OutputRegistryIterator* it = outputRegistry->createIterator();
-    bool found = false;
-    for (OutputComponent* component = it->first();
-         component != nullptr;
-         component = it->hasNext() ? it->next() : nullptr) {
-        if (component->printOutput() == request) {
-            found = true;
-            break;
-        }
-    }
-    delete it;
+    OutputComponent* output = outputRegistry->createOutput(request);
 
-    if (!found) return false;
+    if (output == nullptr)
+        return false;
+
+    delete output;
 
     workItemHistory->save(workItem->createSnapshot());
     return workflowController->addRequest(request);
