@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIVIDY Workflow Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background decoration (pure CSS, no images needed) -->
+  <div class="blob blob-a" aria-hidden="true"></div>
+  <div class="blob blob-b" aria-hidden="true"></div>
+  <div class="cloud cloud-a" aria-hidden="true"></div>
+  <div class="cloud cloud-b" aria-hidden="true"></div>
+
+  <!-- Top bar: back + report (Canva page 2) -->
+  <header class="topbar" id="topbar" hidden>
+    <button class="btn btn-square" id="btn-back" title="Back">&lt;</button>
+    <button class="btn" id="btn-report">REPORT</button>
+    <span class="topbar-title" id="topbar-title"></span>
+    <span class="engine-status" id="engine-status">engine: checking...</span>
+  </header>
+
+  <main>
+    <!-- 1. Welcome (Canva page 1) -->
+    <section class="view" id="view-welcome">
+      <div class="glass card">
+        <h1>WELCOME TO YOUR<br>WORKFLOW MANAGER</h1>
+        <label class="field">
+          <span>CHOOSE A WORKFLOW</span>
+          <select id="in-workflow"></select>
+        </label>
+        <label class="field">
+          <span>WORKFLOW NAME</span>
+          <input id="in-workflow-name" maxlength="40" placeholder="e.g. Saturday orders">
+        </label>
+        <label class="field" id="existing-field" hidden>
+          <span>OR CONTINUE AN EXISTING WORKFLOW</span>
+          <select id="in-existing"></select>
+        </label>
+        <div class="card-foot">
+          <button class="link" id="btn-existing">USE EXISTING WORKFLOW &gt;</button>
+          <button class="btn" id="btn-get-started">GET STARTED</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Questions (Canva page 2) -->
+    <section class="view" id="view-questions" hidden>
+      <div class="glass card">
+        <h2>QUESTIONS FOR YOUR WORKFLOW</h2>
+        <label class="field">
+          <span>WHAT IS YOUR WORKITEM</span>
+          <input id="in-item-name" maxlength="40">
+        </label>
+        <label class="field">
+          <span>DESCRIBE IT</span>
+          <input id="in-item-desc" maxlength="80">
+        </label>
+        <fieldset class="field radios">
+          <legend>STRATEGY BEING USED</legend>
+          <label><input type="radio" name="strategy" value="role" checked> ROLE</label>
+          <label><input type="radio" name="strategy" value="rule"> RULE</label>
+          <label><input type="radio" name="strategy" value="workload"> WORKLOAD</label>
+        </fieldset>
+        <div class="card-foot">
+          <span></span>
+          <button class="btn" id="btn-questions-next">NEXT</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Creation of work item (Canva page 3) -->
+    <section class="view" id="view-create" hidden>
+      <div class="glass card">
+        <h2>CREATION OF <span class="item-name-slot">WORKITEM</span></h2>
+        <label class="field">
+          <span>NAME OF CLIENT</span>
+          <input id="in-client" maxlength="40">
+        </label>
+        <label class="field">
+          <span>NAME OF WORKER</span>
+          <input id="in-worker" maxlength="40">
+        </label>
+        <label class="field">
+          <span>NUMBER OF WORKITEMS</span>
+          <input id="in-item-count" value="1" readonly title="Fixed for now">
+        </label>
+        <div class="card-foot">
+          <span></span>
+          <button class="btn" id="btn-create">CREATE WORKITEM</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Workflow dashboard (Canva page 4 + extra panels) -->
+    <section class="view" id="view-board" hidden>
+      <!-- State pattern: progress bar -->
+      <div class="progress-wrap">
+        <ol class="progress" id="progress">
+          <li data-state="Available">AVAILABLE</li>
+          <li data-state="InProgress">IN-PROGRESS</li>
+          <li data-state="Assigned">ASSIGNED</li>
+          <li data-state="Completed">COMPLETED</li>
+        </ol>
+        <div class="side-states">
+          <div class="side-state" data-state="Blocked"><span class="arrow-up"></span>BLOCKED</div>
+          <div class="side-state" data-state="Rejected"><span class="cross">&times;</span>CANCELLED</div>
+        </div>
+      </div>
+
+      <!-- Command pattern: action chevrons -->
+      <div class="chevrons" id="chevrons">
+        <button class="chev" data-action="start-workflow">START<br><span class="item-name-slot">WORKFLOW</span></button>
+        <button class="chev" data-action="assign">ASSIGN TO<br>WORKER</button>
+        <button class="chev" data-action="complete">COMPLETE &amp;<br>CREATE OUTPUT</button>
+        <button class="chev chev-alt" data-action="block">BLOCK /<br>UNBLOCK</button>
+        <button class="chev chev-danger" data-action="cancel">CANCEL<br><span class="item-name-slot">WORKITEM</span></button>
+        <button class="chev chev-alt" data-action="undo">UNDO<br>(MEMENTO)</button>
+      </div>
+
+      <div class="panels">
+        <!-- Work item details -->
+        <div class="glass panel" id="panel-item">
+          <h3>WORKITEM <span class="tag">Facade + State</span></h3>
+          <dl class="kv" id="item-details"></dl>
+        </div>
+
+        <!-- Iterator pattern: browse outputs + requests (max 5) -->
+        <div class="glass panel" id="panel-requests">
+          <h3>ADD REQUESTS <span class="tag">Iterator + Prototype</span></h3>
+          <div class="browser">
+            <button class="btn btn-small" id="btn-first">FIRST</button>
+            <div class="browse-current" id="browse-current">-</div>
+            <button class="btn btn-small" id="btn-next">NEXT &gt;</button>
+          </div>
+          <label class="extra">extra feature (Decorator): <select id="in-extra"><option value="">none</option></select></label>
+          <button class="btn" id="btn-add-request">+ ADD REQUEST</button>
+          <p class="counter"><span id="req-count">0</span> / <span id="req-max">5</span> requests</p>
+          <ul class="list" id="request-list"></ul>
+        </div>
+
+        <!-- Factory Method + Decorator: outputs -->
+        <div class="glass panel" id="panel-outputs">
+          <h3>OUTPUTS CREATED <span class="tag">Factory Method + Decorator</span></h3>
+          <ul class="list" id="output-list"></ul>
+        </div>
+        <!-- Observer pattern: notifications -->
+        <div class="glass panel" id="panel-notes">
+          <h3>NOTIFICATIONS <span class="tag">Observer</span></h3>
+          <ul class="list feed" id="notification-list"></ul>
+        </div>
+
+        <!-- History: HistoryLogger + Memento -->
+        <div class="glass panel" id="panel-history">
+          <h3>HISTORY <span class="tag">Memento</span></h3>
+          <ul class="list feed" id="history-list"></ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. Report (Canva page 5) -->
+    <section class="view" id="view-report" hidden>
+      <div class="report">
+        <div class="glass report-art" aria-hidden="true"><div class="grid-art"></div></div>
+        <div class="report-text">
+          <h2 class="big">Report</h2>
+          <pre id="report-text">Loading...</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
