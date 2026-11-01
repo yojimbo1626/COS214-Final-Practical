@@ -10,8 +10,7 @@
 #include "../include/Worker.h"
 
 WorkflowController::WorkflowController(WorkItem* workItem)
-    : workItem(workItem),
-      addRequestCommand(new AddRequest(workItem, "")),
+    : addRequestCommand(new AddRequest(workItem, "")),
       start(new StartWorkflow(workItem)),
       assign(new AssignWorkItem(workItem)),
       complete(new CompleteWorkItem(workItem)),
@@ -35,15 +34,10 @@ bool WorkflowController::startWorkflow() {
 }
 
 bool WorkflowController::assignWorkItem(Worker* worker) {
-    if (workItem == nullptr || worker == nullptr) return false;
+    if (worker == nullptr) return false;
 
-    workItem->addObserver(worker);
-
-    bool assigned = assign->execute();
-    if (!assigned) {
-        workItem->removeObserver(worker);
-    }
-    return assigned;
+    static_cast<AssignWorkItem*>(assign)->defineWorker(worker);
+    return assign->execute();
 }
 
 bool WorkflowController::completeWorkItem() {
