@@ -18,10 +18,15 @@ workflow first."*
   "sessions": ["Donut shop: Saturday orders", "Hair salon: Wedding bookings"],
   "current": 0,
   "maxRequests": 5,
-  "workflow": {"id": "donut", "title": "Donut shop", "name": "Saturday orders"},
+  "maxItems": 10,
+  "workflow": {"id": "donut", "title": "Donut shop", "name": "Saturday orders",
+               "rule": "Extra icing cannot go on a Glazed donut: it is already iced."},
+  "items": [{"name": "Party order", "state": "Assigned"}, {"name": "Office treats", "state": "Available"}],
+  "currentItem": 0,
   "workItem": {"name": "Party order", "description": "...", "client": "Thandi Mokoena",
                "worker": "Sipho (baker)", "strategy": "Role",
                "state": "Available|InProgress|Assigned|Completed|Blocked|Rejected",
+               "blockedFrom": "Available (only while Blocked)",
                "requests": ["Output #1: Glazed donut"]},
   "outputs": ["Output #1: Glazed donut"],
   "notifications": ["[Client #3 (Thandi Mokoena)] received update: WorkItem 'Party order' is now Assigned"],
@@ -32,16 +37,20 @@ workflow first."*
 
 | Method + path | Params | Engine call (pattern) |
 |---|---|---|
-| GET `/api/workflows` | – | The two industries and their test data |
+| GET `/api/workflows` | – | The two demo industries, their rule and their test data |
 | GET `/api/status` | – | Builds `status` |
-| POST `/api/workflow` | `workflow` (donut/salon), `name` | New independent `WorkflowSession` |
+| POST `/api/workflow` | `workflow` (donut/salon/custom), `name`; for custom also `products`, `features` (comma separated) | New independent `WorkflowSession` |
 | POST `/api/select` | `index` | Switches to an existing workflow instance |
-| POST `/api/workitem` | `name, description, strategy (role/rule/workload), client, worker` | Creates the Worker (with its Strategy), the Client and the WorkItem. The worker fills the registry with the industry's products (Factory Method → Prototype). The client and a HistoryLogger subscribe (Observer) |
+| POST `/api/item/select` | `index` | Switches to another work item of the current workflow |
+| POST `/api/workitem` | `name, description, strategy (role/rule/workload), client, worker` | Creates the Worker (with its Strategy), the Client and the WorkItem. The worker fills the registry with the industry's products (Factory Method → Prototype). The client, a HistoryLogger and a SessionObserver subscribe (Observer). Adds a work item (at most 10 per workflow) |
 | GET `/api/outputs/first` | – | `iterator->first()` (Iterator) → `{"output"}` |
 | GET `/api/outputs/next` | – | `iterator->next()`, wraps round (Iterator) |
 | POST `/api/requests` | `output`, `extra` (optional) | `Client::addRequest` / `addSpecialRequest` through the ClientProcessor (Proxy → Facade → Command; Decorator for extras). At most 5 |
-| POST `/api/action` | `action` = `start-workflow`, `assign`, `complete`, `block`, `cancel`, `undo` | SystemProcessor (Facade) → WorkflowController (Command) → WorkItem state (State). `complete` runs the worker's Strategy, then the outputs are cloned and delivered. `undo` restores the last WorkItemSnapshot (Memento) |
-| GET `/api/report` | – | `{"text"}`: the report for the current workflow |
+| POST `/api/action` | `action` = `start-workflow`, `assign`, `complete`, `block`, `cancel`, `undo` | SystemProcessor (Facade) → WorkflowController (Command) → WorkItem state (State). `block` calls `WorkItem::blocked()` (State). `cancel` goes through the client's proxy once Assigned, through `SystemProcessor::cancelWork()` once started, and straight to `WorkItem::cancel()` before the start. `complete` runs the worker's Strategy, then the outputs are cloned and delivered. `undo` restores the last WorkItemSnapshot (Memento) |
+
+Before a request is added, the industry rule is checked (donut shop: no Extra icing on a Glazed donut;
+hair salon: at most one Hair colour per appointment). A broken rule is refused with `ok: false`.
+| GET `/api/report` | – | `{"text"}`: the report for the current workflow, every work item |
 
 ## State transitions (from the engine's state classes)
 

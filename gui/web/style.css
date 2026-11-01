@@ -144,14 +144,33 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .engine-status { font-size: 0.7rem; color: var(--white); opacity: 0.85; }
 .engine-status.down { color: #ffd1d6; }
 
+/* ---------- work items bar ---------- */
+.items-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 18px 16px 0; }
+.items-label { font-size: 0.72rem; font-weight: 800; color: var(--white); background: var(--navy); border-radius: 999px; padding: 6px 10px; }
+.item-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.item-tab {
+  font: inherit; cursor: pointer; border: 0; border-radius: 10px; padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.55); color: var(--ink);
+  display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;
+}
+.item-tab strong { font-size: 0.75rem; }
+.item-tab small { font-size: 0.62rem; font-weight: 700; opacity: 0.75; }
+.item-tab.active { background: var(--white); box-shadow: 0 0 0 3px var(--active); }
+.rule {
+  margin: 12px 16px 0; padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.6); color: var(--ink); max-width: 760px;
+}
+.hint { font-size: 0.72rem; font-weight: 700; color: var(--ink); margin: -6px 0 0; min-height: 1em; }
+
 /* ---------- progress bar (State) ---------- */
 .progress-wrap { padding: 22px 16px 0; display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-start; }
 .progress {
-  list-style: none; margin: 0; padding: 7px;
+  list-style: none; margin: 0 0 64px; padding: 7px;
   display: flex; gap: 6px;
   background: var(--navy); border-radius: 999px;
 }
 .progress li {
+  position: relative;
   background: var(--cell); color: var(--ink);
   font-weight: 800; font-size: 0.78rem; letter-spacing: 0.03em;
   padding: 10px 14px; min-width: 120px; text-align: center;
@@ -160,29 +179,46 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .progress li:last-child { border-radius: 4px 999px 999px 4px; }
 .progress li.done { background: #9fe0bd; }
 .progress li.current { background: var(--active); box-shadow: inset 0 0 0 3px var(--navy); }
+.progress li.paused { background: #d9c8ff; box-shadow: inset 0 0 0 3px #5b2bb5; }
 .progress.halted li { opacity: 0.55; }
 
-.side-states { display: flex; gap: 16px; }
+/* Blocked: a two-way arrow that runs from the middle of the stage, through the bar, down to BLOCKED */
+.block-arrow {
+  position: absolute; left: 50%; top: 70%; width: 4px; height: 58px; margin-left: -2px;
+  background: rgba(19, 33, 63, 0.35); border-radius: 2px; pointer-events: none;
+}
+.block-arrow::before, .block-arrow::after {
+  content: ""; position: absolute; left: 50%; width: 0; height: 0;
+  border-left: 7px solid transparent; border-right: 7px solid transparent; margin-left: -7px;
+}
+.block-arrow::before { top: -2px; border-bottom: 9px solid rgba(19, 33, 63, 0.35); }
+.block-arrow::after { bottom: -2px; border-top: 9px solid rgba(19, 33, 63, 0.35); }
+.block-label {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px;
+  font-size: 0.72rem; font-weight: 800; color: #5b2bb5; white-space: nowrap; visibility: hidden;
+}
+.block-arrow.active { background: #5b2bb5; }
+.block-arrow.active::before { border-bottom-color: #5b2bb5; }
+.block-arrow.active::after { border-top-color: #5b2bb5; }
+.block-arrow.active .block-label {
+  visibility: visible; background: var(--white); border-radius: 6px; padding: 2px 8px;
+}
+
 .side-state {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   font-size: 0.72rem; font-weight: 800; color: var(--navy); opacity: 0.45;
 }
-.side-state.current { opacity: 1; }
-.side-state.current[data-state="Blocked"] { color: #5b2bb5; }
-.side-state.current[data-state="Rejected"] { color: var(--danger); }
-.arrow-up {
-  width: 0; height: 0;
-  border-left: 18px solid transparent; border-right: 18px solid transparent;
-  border-bottom: 22px solid currentColor;
-  position: relative; margin-bottom: 18px;
-}
-.arrow-up::after {
-  content: ""; position: absolute; left: -6px; top: 20px; width: 12px; height: 18px; background: currentColor;
-}
+.side-state.current { opacity: 1; color: var(--danger); }
 .cross { font-size: 2rem; line-height: 1; }
 
 /* ---------- chevrons (Command) ---------- */
-.chevrons { display: flex; flex-wrap: wrap; gap: 4px; padding: 22px 16px 6px; }
+.chevrons { display: flex; flex-wrap: wrap; gap: 6px; padding: 22px 16px 6px; }
+/* The wrapper draws the white outline: an outline on the button itself would be cut off by its clip-path */
+.chev-wrap { display: inline-flex; padding: 3px; }
+.chev-wrap.selected {
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+          drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff);
+}
 .chev {
   font: inherit; font-size: 0.72rem; font-weight: 800; line-height: 1.3;
   color: var(--white);
@@ -192,12 +228,11 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
   clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 18px 50%);
   transition: transform 0.12s, filter 0.12s;
 }
-.chev:first-child { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); padding-left: 18px; }
+.chev-wrap:first-child .chev { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%); padding-left: 18px; }
 .chev:hover { transform: translateY(-2px); filter: brightness(1.15); }
 .chev:active { transform: translateY(1px); }
 .chev-alt { background: linear-gradient(160deg, #e1e3e6, #9ea2a8); color: var(--ink); }
 .chev-danger { background: linear-gradient(160deg, #ef7a88, #b52d40); }
-.chev.flash-ok { filter: drop-shadow(0 0 0 var(--ok)) brightness(1.3); }
 .chev.flash-bad { animation: shake 0.3s; }
 @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
@@ -269,6 +304,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 @media (max-width: 760px) {
   .report { grid-template-columns: 1fr; padding: 24px 16px; }
   .progress li { min-width: 0; padding: 8px 6px; font-size: 0.62rem; }
+  .block-label { font-size: 0.6rem; }
   .chev { min-width: 108px; height: 60px; font-size: 0.64rem; }
   .blob, .cloud { opacity: 0.4; }
 }

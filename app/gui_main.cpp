@@ -68,17 +68,25 @@ std::string statusJson() {
     for (size_t i = 0; i < sessions.size(); ++i)
         names.push_back(sessions[i]->industry().title + ": " + sessions[i]->name());
     j << "\"sessions\":" << list(names) << ",\"current\":" << currentSession << ",";
-    j << "\"maxRequests\":" << WorkflowSession::MAX_REQUESTS << ",";
+    j << "\"maxRequests\":" << WorkflowSession::MAX_REQUESTS << ",\"maxItems\":" << WorkflowSession::MAX_ITEMS << ",";
     if (s == nullptr) {
-        j << "\"workflow\":null,\"workItem\":null,\"outputs\":[],\"notifications\":[],\"history\":[],\"features\":[]}";
+        j << "\"workflow\":null,\"items\":[],\"currentItem\":-1,\"workItem\":null,\"outputs\":[],"
+          << "\"notifications\":[],\"history\":[],\"features\":[]}";
         return j.str();
     }
     j << "\"workflow\":{\"id\":" << esc(s->industry().id) << ",\"title\":" << esc(s->industry().title)
-      << ",\"name\":" << esc(s->name()) << "},";
+      << ",\"name\":" << esc(s->name()) << ",\"rule\":" << esc(s->industry().ruleText) << "},";
+    j << "\"items\":[";
+    for (size_t i = 0; i < s->itemCount(); ++i) {
+        if (i) j << ",";
+        j << "{\"name\":" << esc(s->itemName(i)) << ",\"state\":" << esc(s->itemState(i)) << "}";
+    }
+    j << "],\"currentItem\":" << s->currentItem() << ",";
     if (s->hasWorkItem()) {
         j << "\"workItem\":{\"name\":" << esc(s->itemName()) << ",\"description\":" << esc(s->itemDescription())
           << ",\"client\":" << esc(s->clientName()) << ",\"worker\":" << esc(s->workerName())
           << ",\"strategy\":" << esc(s->strategyName()) << ",\"state\":" << esc(s->state())
+          << ",\"blockedFrom\":" << esc(s->blockedFrom())
           << ",\"requests\":" << list(s->requests()) << "},";
     } else {
         j << "\"workItem\":null,";
@@ -127,7 +135,7 @@ int main(int argc, char** argv) {
               << ",\"itemName\":" << esc(all[i].defaultItemName)
               << ",\"itemDescription\":" << esc(all[i].defaultItemDescription)
               << ",\"client\":" << esc(all[i].defaultClient)
-              << ",\"worker\":" << esc(all[i].defaultWorker) << "}}";
+              << ",\"worker\":" << esc(all[i].defaultWorker) << "},\"rule\":" << esc(all[i].ruleText) << "}";
         }
         w << "],\"active\":" << (sessions.empty() ? "false" : "true");
         reply(res, true, "", w.str());
@@ -142,6 +150,15 @@ int main(int argc, char** argv) {
         std::lock_guard<std::mutex> lock(engineMutex);
         std::vector<Industry> all = industryCatalog();
         std::string id = param(req, "workflow");
+        if (id == "custom") {
+            std::string name = param(req, "name");
+            if (name.empty()) return reply(res, false, "Please type a name for your workflow.");
+            Industry custom = customIndustry(name, param(req, "products"), param(req, "features"));
+            sessions.push_back(std::unique_ptr<WorkflowSession>(new WorkflowSession(custom, name)));
+            currentSession = static_cast<int>(sessions.size()) - 1;
+            return reply(res, true, "New workflow '" + name + "' created with " + std::to_string(custom.products.size())
+                                    + " product(s).");
+        }
         for (size_t i = 0; i < all.size(); ++i) {
             if (all[i].id == id) {
                 std::string name = param(req, "name");
@@ -160,6 +177,14 @@ int main(int argc, char** argv) {
         if (index < 0 || index >= static_cast<int>(sessions.size())) return reply(res, false, "No such workflow.");
         currentSession = index;
         reply(res, true, "Switched to " + sessions[index]->name() + ".");
+    });
+
+    server.Post("/api/item/select", [](const httplib::Request& req, httplib::Response& res) {
+        std::lock_guard<std::mutex> lock(engineMutex);
+        WorkflowSession* s = current();
+        if (s == nullptr) return reply(res, false, "Start a workflow first.");
+        ActionResult r = s->selectItem(std::atoi(param(req, "index").c_str()));
+        reply(res, r.ok, r.message);
     });
 
     server.Post("/api/workitem", [](const httplib::Request& req, httplib::Response& res) {

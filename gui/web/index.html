@@ -13,10 +13,11 @@
   <div class="cloud cloud-a" aria-hidden="true"></div>
   <div class="cloud cloud-b" aria-hidden="true"></div>
 
-  <!-- Top bar: back + report (Canva page 2) -->
+  <!-- Top bar: back + report + dashboard (Canva page 2) -->
   <header class="topbar" id="topbar" hidden>
     <button class="btn btn-square" id="btn-back" title="Back">&lt;</button>
     <button class="btn" id="btn-report">REPORT</button>
+    <button class="btn" id="btn-dashboard">DASHBOARD</button>
     <span class="topbar-title" id="topbar-title"></span>
     <span class="engine-status" id="engine-status">engine: checking...</span>
   </header>
@@ -26,26 +27,35 @@
     <section class="view" id="view-welcome">
       <div class="glass card">
         <h1>WELCOME TO YOUR<br>WORKFLOW MANAGER</h1>
-        <label class="field">
-          <span>CHOOSE A WORKFLOW</span>
-          <select id="in-workflow"></select>
-        </label>
-        <label class="field">
-          <span>WORKFLOW NAME</span>
-          <input id="in-workflow-name" maxlength="40" placeholder="e.g. Saturday orders">
-        </label>
-        <label class="field" id="existing-field" hidden>
-          <span>OR CONTINUE AN EXISTING WORKFLOW</span>
-          <select id="in-existing"></select>
-        </label>
+        <div id="custom-fields">
+          <label class="field">
+            <span>CHOOSE A WORKFLOW</span>
+            <input id="in-workflow-name" maxlength="40" placeholder="Type a name, e.g. Print shop">
+          </label>
+          <label class="field">
+            <span>WHAT DOES IT PRODUCE? (comma separated)</span>
+            <input id="in-products" maxlength="200" placeholder="e.g. Poster, Flyer, Banner">
+          </label>
+          <label class="field">
+            <span>EXTRAS A CLIENT CAN ADD (optional)</span>
+            <input id="in-features" maxlength="200" placeholder="e.g. Lamination, Express delivery">
+          </label>
+        </div>
+        <div id="existing-fields" hidden>
+          <label class="field">
+            <span>USE EXISTING WORKFLOW</span>
+            <select id="in-existing"></select>
+          </label>
+          <p class="hint" id="existing-rule"></p>
+        </div>
         <div class="card-foot">
-          <button class="link" id="btn-existing">USE EXISTING WORKFLOW &gt;</button>
+          <button class="link" id="btn-toggle-existing">USE EXISTING WORKFLOW &gt;</button>
           <button class="btn" id="btn-get-started">GET STARTED</button>
         </div>
       </div>
     </section>
 
-    <!-- 2. Questions (Canva page 2) -->
+    <!-- 2. Questions for the worker (Canva page 2) -->
     <section class="view" id="view-questions" hidden>
       <div class="glass card">
         <h2>QUESTIONS FOR YOUR WORKFLOW</h2>
@@ -73,7 +83,7 @@
     <!-- 3. Creation of work item (Canva page 3) -->
     <section class="view" id="view-create" hidden>
       <div class="glass card">
-        <h2>CREATION OF <span class="item-name-slot">WORKITEM</span></h2>
+        <h2>CREATION OF <span id="create-item-name">WORKITEM</span></h2>
         <label class="field">
           <span>NAME OF CLIENT</span>
           <input id="in-client" maxlength="40">
@@ -81,10 +91,6 @@
         <label class="field">
           <span>NAME OF WORKER</span>
           <input id="in-worker" maxlength="40">
-        </label>
-        <label class="field">
-          <span>NUMBER OF WORKITEMS</span>
-          <input id="in-item-count" value="1" readonly title="Fixed for now">
         </label>
         <div class="card-foot">
           <span></span>
@@ -95,28 +101,33 @@
 
     <!-- 4. Workflow dashboard (Canva page 4 + extra panels) -->
     <section class="view" id="view-board" hidden>
-      <!-- State pattern: progress bar -->
+      <!-- Work items of this workflow -->
+      <div class="items-bar">
+        <span class="items-label">WORK ITEMS <span id="item-count">0</span>/<span id="item-max">10</span></span>
+        <div class="item-tabs" id="item-tabs"></div>
+        <button class="btn btn-small" id="btn-add-item">+ ADD WORK ITEM</button>
+      </div>
+      <p class="rule" id="rule-text" hidden></p>
+
+      <!-- State pattern: progress bar. Blocked hangs below Available (the only state that can be blocked). -->
       <div class="progress-wrap">
         <ol class="progress" id="progress">
-          <li data-state="Available">AVAILABLE</li>
+          <li data-state="Available">AVAILABLE<span class="block-arrow" data-from="Available"><span class="block-label">BLOCKED</span></span></li>
           <li data-state="InProgress">IN-PROGRESS</li>
           <li data-state="Assigned">ASSIGNED</li>
           <li data-state="Completed">COMPLETED</li>
         </ol>
-        <div class="side-states">
-          <div class="side-state" data-state="Blocked"><span class="arrow-up"></span>BLOCKED</div>
-          <div class="side-state" data-state="Rejected"><span class="cross">&times;</span>CANCELLED</div>
-        </div>
+        <div class="side-state" data-state="Rejected"><span class="cross">&times;</span>CANCELLED</div>
       </div>
 
       <!-- Command pattern: action chevrons -->
       <div class="chevrons" id="chevrons">
-        <button class="chev" data-action="start-workflow">START<br><span class="item-name-slot">WORKFLOW</span></button>
-        <button class="chev" data-action="assign">ASSIGN TO<br>WORKER</button>
-        <button class="chev" data-action="complete">COMPLETE &amp;<br>CREATE OUTPUT</button>
-        <button class="chev chev-alt" data-action="block">BLOCK /<br>UNBLOCK</button>
-        <button class="chev chev-danger" data-action="cancel">CANCEL<br><span class="item-name-slot">WORKITEM</span></button>
-        <button class="chev chev-alt" data-action="undo">UNDO<br>(MEMENTO)</button>
+        <span class="chev-wrap"><button class="chev" data-action="start-workflow">START<br><span class="item-name-slot">WORKFLOW</span></button></span>
+        <span class="chev-wrap"><button class="chev" data-action="assign">ASSIGN TO<br>WORKER</button></span>
+        <span class="chev-wrap"><button class="chev" data-action="complete">COMPLETE &amp;<br>CREATE OUTPUT</button></span>
+        <span class="chev-wrap"><button class="chev chev-alt" data-action="block">BLOCK /<br>UNBLOCK</button></span>
+        <span class="chev-wrap"><button class="chev chev-danger" data-action="cancel">CANCEL<br><span class="item-name-slot">WORKITEM</span></button></span>
+        <span class="chev-wrap"><button class="chev chev-alt" data-action="undo">UNDO<br>(MEMENTO)</button></span>
       </div>
 
       <div class="panels">
@@ -128,7 +139,7 @@
 
         <!-- Iterator pattern: browse outputs + requests (max 5) -->
         <div class="glass panel" id="panel-requests">
-          <h3>ADD REQUESTS <span class="tag">Iterator + Prototype</span></h3>
+          <h3>ADD REQUESTS <span class="tag">Iterator + Proxy</span></h3>
           <div class="browser">
             <button class="btn btn-small" id="btn-first">FIRST</button>
             <div class="browse-current" id="browse-current">-</div>
@@ -140,23 +151,23 @@
           <ul class="list" id="request-list"></ul>
         </div>
 
-        <!-- Factory Method + Decorator: outputs -->
+        <!-- Prototype + Decorator: outputs -->
         <div class="glass panel" id="panel-outputs">
-          <h3>OUTPUTS CREATED <span class="tag">Factory Method + Decorator</span></h3>
+          <h3>OUTPUTS CREATED <span class="tag">Prototype + Decorator</span></h3>
           <ul class="list" id="output-list"></ul>
         </div>
+
         <!-- Observer pattern: notifications -->
         <div class="glass panel" id="panel-notes">
-          <h3>NOTIFICATIONS <span class="tag">Observer</span></h3>
+          <h3>NOTIFICATIONS <span class="tag">Observer (SessionObserver)</span></h3>
           <ul class="list feed" id="notification-list"></ul>
         </div>
 
-        <!-- History: HistoryLogger + Memento -->
+        <!-- History: HistoryLogger -->
         <div class="glass panel" id="panel-history">
-          <h3>HISTORY <span class="tag">Memento</span></h3>
+          <h3>HISTORY <span class="tag">Observer (HistoryLogger)</span></h3>
           <ul class="list feed" id="history-list"></ul>
         </div>
-
       </div>
     </section>
 

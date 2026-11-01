@@ -37,7 +37,7 @@ add_library(tividy_engine STATIC ${ENGINE_SOURCES})
 target_include_directories(tividy_engine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 # 5. The application layer: one workflow instance per WorkflowSession, and the GUI server
-add_library(tividy_app STATIC ${CMAKE_SOURCE_DIR}/app/WorkflowSession.cpp)
+add_library(tividy_app STATIC ${CMAKE_SOURCE_DIR}/app/WorkflowSession.cpp ${CMAKE_SOURCE_DIR}/app/SessionObserver.cpp)
 target_include_directories(tividy_app PUBLIC ${CMAKE_SOURCE_DIR}/app)
 target_link_libraries(tividy_app PUBLIC tividy_engine)
 
