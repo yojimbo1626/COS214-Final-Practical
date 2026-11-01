@@ -1,10 +1,10 @@
 /**
  * @file WorkUnit.cpp
- * @brief Implementation of WorkUnit, the abstract Subject in the Observer pattern.
+ * @brief Implementation of WorkUnit, the abstract WorkUnit in the Observer pattern.
  *
  * WorkUnit manages the list of observers (Participants) and pushes update
  * messages to them. It does not know what the messages mean: concrete
- * subjects such as WorkItem decide when to notify and what to send.
+ * WorkUnits such as WorkItem decide when to notify and what to send.
  */
 
 #include "WorkUnit.h"
@@ -48,8 +48,8 @@ void WorkUnit::removeObserver(Participant* participant) {
 /**
  * @brief Pushes an update message to every subscribed Participant.
  *
- * Push model: the concrete subject builds the message and passes it in,
- * so observers get everything they need without querying the subject.
+ * Push model: the concrete WorkUnit builds the message and passes it in,
+ * so observers get everything they need without querying the WorkUnit.
  *
  * Loops over a copy of the observer list, so an observer can safely
  * unsubscribe itself from inside receiveUpdate().
