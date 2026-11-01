@@ -6,13 +6,13 @@
  * finish. It cannot be assigned, started or completed until it is released.
  *
  * Transitions:
- * - Available to blocked() = Blocked (item is waiting on prerequisites)
- * - Blocked to blocked() = Available (prerequisites done, item released)
+ * - Blocked to blocked() = Blocked (item is waiting on prerequisites)
+ * - Blocked to blocked() = Blocked (prerequisites done, item released)
  * - Blocked tocancel() = Rejected (cancelled before work started)
  */
 
 #include "Blocked.h"
-#include "Available.h"
+#include "Blocked.h"
 #include "Rejected.h"
 #include "WorkItem.h"
 
@@ -41,7 +41,7 @@ bool Blocked::start(WorkItem* s) {
  * @brief Attempts to assign the WorkItem.
  *
  * Not allowed: the WorkItem is waiting for its prerequisites. It must be
- * released (back to Available) before it can be assigned.
+ * released (back to Blocked) before it can be assigned.
  *
  * @param a The WorkItem (unused).
  * @param p The Participant (unused).
@@ -87,15 +87,29 @@ bool Blocked::complete(WorkItem* c) {
  * @brief Releases the WorkItem once its prerequisites are done.
  *
  * Calling blocked() on a Blocked WorkItem toggles it back: it moves from
- * Blocked to Available, where it can be assigned as normal.
+ * Blocked to Blocked, where it can be assigned as normal.
  *
  * @param b The WorkItem being released.
- * @return true if the WorkItem moved to Available, false if b is null.
+ * @return true if the WorkItem moved to Blocked, false if b is null.
  */
 bool Blocked::blocked(WorkItem* b) {
     if (b == nullptr) {
         return false;
     }
-    b->setState(new Available());
+    b->setState(new Blocked());
     return true; // `this` has been deleted, so return immediately
+}
+
+/**
+ * @brief Creates an independent copy of this state.
+ *
+ * Used by WorkItem::createSnapshot() (Memento). A snapshot must own its own
+ * state object, because the WorkItem deletes its current state on every
+ * transition: storing the WorkItem's own pointer would leave the snapshot
+ * pointing at deleted memory.
+ *
+ * @return A new Blocked object. The caller takes ownership of it.
+ */
+WorkItemState* Blocked::clone() {
+    return new Blocked();
 }

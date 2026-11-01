@@ -92,3 +92,17 @@ bool InProgress::blocked(WorkItem* b) {
     (void)b;
     return false;
 }
+
+/**
+ * @brief Creates an independent copy of this state.
+ *
+ * Used by WorkItem::createSnapshot() (Memento). A snapshot must own its own
+ * state object, because the WorkItem deletes its current state on every
+ * transition: storing the WorkItem's own pointer would leave the snapshot
+ * pointing at deleted memory.
+ *
+ * @return A new InProgress object. The caller takes ownership of it.
+ */
+WorkItemState* InProgress::clone() {
+    return new InProgress();
+}

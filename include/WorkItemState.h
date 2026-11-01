@@ -23,6 +23,7 @@ public:
     virtual bool complete(WorkItem* c) = 0;
     virtual bool cancel(WorkItem* c) = 0;
     virtual bool blocked(WorkItem* b) = 0;
+    virtual WorkItemState* clone() = 0;
 };
 
 #endif

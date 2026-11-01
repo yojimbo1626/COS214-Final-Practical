@@ -20,6 +20,7 @@ public:
     bool cancel(WorkItem* c);
     bool complete(WorkItem* c);
     bool blocked(WorkItem* b);
+    WorkItemState* clone();
 };
 
 #endif

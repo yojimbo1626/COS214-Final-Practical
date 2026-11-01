@@ -96,3 +96,17 @@ bool Available::blocked(WorkItem* b) {
     b->setState(new Blocked());
     return true; // `this` has been deleted, so return immediately
 }
+
+/**
+ * @brief Creates an independent copy of this state.
+ *
+ * Used by WorkItem::createSnapshot() (Memento). A snapshot must own its own
+ * state object, because the WorkItem deletes its current state on every
+ * transition: storing the WorkItem's own pointer would leave the snapshot
+ * pointing at deleted memory.
+ *
+ * @return A new Available object. The caller takes ownership of it.
+ */
+WorkItemState* Available::clone() {
+    return new Available();
+}
