@@ -44,28 +44,44 @@ void Worker::assignProcessor(SystemProcessor* processor) {
 }
 
 ClientProcessor* Worker::createClientProcessor() {
+    // Proxy: the client only gets restricted access to the processor this worker is assigned to.
     if (processor == nullptr) {
-        processor = new SystemProcessor;
-        processor->startWorkflow(new WorkItem(workItemName, workItemDescription));
-        return new ClientProcessor(processor);
-    }   
-    else 
         return nullptr;
+    }
+    return new ClientProcessor(processor);
 }
 
 bool Worker::assignWorkItem(Worker* worker) {
-    if (processor != nullptr && processor->assignWorkItem(worker)) 
-        processor = nullptr;
-    else  
-        return false; 
+    if (processor == nullptr || worker == nullptr || !processor->assignWorkItem(worker)) {
+        return false;
+    }
+    if (worker != this) {
+        processor = nullptr;   // the work item now belongs to the other worker
+    }
+    return true;
 }
 
 bool Worker::completeWorkItem() {
     if (processor != nullptr) {
-        if (processor->workItem != nullptr && processor->workItem->getClient() != nullptr) {
-            taskExecutionStrategy->execute(processor->workItem);
-            processor->workItem->getClient()->receiveResults(processor->produceOutput());
-            return processor->completeWork();
+        WorkItem* item = processor->workItem;
+        if (item != nullptr && item->getClient() != nullptr) {
+            Client* client = item->getClient();
+
+            // Strategy: the worker carries out the task in its own way. The strategy decides
+            // whether the item may be completed (e.g. RuleExecution refuses if a rule fails).
+            taskExecutionStrategy->execute(item);
+            if (item->process() != "Completed") {
+                return false;
+            }
+
+            // Factory Method + Prototype: create the requested outputs before the facade lets go of the item.
+            std::vector<OutputComponent*> outputs = processor->produceOutput();
+            if (!processor->completeWork()) {
+                for (size_t i = 0; i < outputs.size(); ++i) delete outputs[i];
+                return false;
+            }
+            client->receiveResults(outputs);
+            return true;
         }
     }
     return false;
@@ -87,6 +103,10 @@ std::string Worker::getWorkItemName() const {
 
 std::string Worker::getWorkItemDescription() const {
     return workItemDescription;
+}
+
+void Worker::setWorkItemName(std::string workItemName) {
+    this->workItemName = workItemName;
 }
 
 void Worker::setWorkItemDescription(std::string workItemDescription) {

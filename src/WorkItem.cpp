@@ -42,7 +42,8 @@ WorkItemSnapshot* WorkItem::createSnapshot() {
 void WorkItem::setSnapshot(WorkItemSnapshot* snapshot) {
     if (snapshot == nullptr) return;
     requests = snapshot->requests;
-    setState(snapshot->state);
+    setState(snapshot->state);   // the WorkItem now owns the cloned state
+    snapshot->state = nullptr;   // so the snapshot must not delete it
     delete snapshot;
 }
 
@@ -108,8 +109,12 @@ std::vector<std::string> WorkItem::getRequests() const {
  * @brief Adds a request to the work item.
  * @param request The request to be added.
  */
-void WorkItem::addRequest(std::string request) {
+bool WorkItem::addRequest(std::string request) {
+    if (request.empty()) {
+        return false;
+    }
     requests.push_back(request);
+    return true;
 }
 
 /**

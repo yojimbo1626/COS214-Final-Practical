@@ -17,11 +17,11 @@ SystemProcessor::~SystemProcessor() {
     delete workItemHistory;
 }
 
-std::vector<string> SystemProcessor::getAvailableOutputs() {
+std::vector<std::string> SystemProcessor::getAvailableOutputs() {
     if (outputRegistry == nullptr) 
-        return std::vector<string>();
+        return std::vector<std::string>();
 
-    std::vector<string> outputs;
+    std::vector<std::string> outputs;
     Iterator<OutputComponent>* it = outputRegistry->createIterator();
 
     for (OutputComponent* component = it->first();
@@ -87,11 +87,17 @@ bool SystemProcessor::completeWork() {
     if (workflowController == nullptr || workItem == nullptr)
         return false;
 
-    if (!workflowController->completeWorkItem())
-        return false;
+    // A worker's strategy may already have completed the item (State pattern).
+    // Only ask the controller to complete it if it is not completed yet.
+    if (workItem->process() != "Completed") {
+        workItemHistory->save(workItem->createSnapshot());   // snapshot BEFORE the action, like the others
+        if (!workflowController->completeWorkItem()) {
+            delete workItemHistory->undo();                   // nothing changed, so drop that snapshot
+            return false;
+        }
+    }
 
-    workItemHistory->save(workItem->createSnapshot());
-    workItem = nullptr;
+    workItem = nullptr;   // the facade is finished with this work item
     return true;
 }
 
@@ -109,6 +115,7 @@ bool SystemProcessor::processWorkItem(Worker* worker, Client* client, std::vecto
         delete newWorkItem;
         return false;
     }
+    newWorkItem->addObserver(client);   // Observer: the client receives every state change
         
     if (!assignWorkItem(worker)) {
         std::cout << "Failed to process work item.\n";
@@ -127,7 +134,7 @@ bool SystemProcessor::processWorkItem(Worker* worker, Client* client, std::vecto
         }
     }
     printWorkItem();
-    std::cout << endl;
+    std::cout << std::endl;
 
     if (!worker->completeWorkItem()) {
         std::cout << "Failed to process work item.\n";
@@ -143,43 +150,43 @@ bool SystemProcessor::processWorkItem(Worker* worker, Client* client, std::vecto
 std::vector<OutputComponent*> SystemProcessor::produceOutput() {
     std::vector<OutputComponent*> outputs;
     if (workItem == nullptr || outputRegistry == nullptr) return outputs;
-    for (const string& request : workItem->getRequests()) 
+    for (const std::string& request : workItem->getRequests()) 
         outputs.push_back(outputRegistry->createOutput(request));
     return outputs;
 }
 
 void SystemProcessor::printWorkItem() {
     if (workItem == nullptr) {
-        std::cout << "No work item available." << endl;
+        std::cout << "No work item available." << std::endl;
         return;
     }
 
-    std::cout << "\n========== Work Item ==========" << endl;
+    std::cout << "\n========== Work Item ==========" << std::endl;
 
-    std::cout << "Name: " << workItem->getName() << endl;
-    std::cout << "Description: " << workItem->getDescription() << endl;
+    std::cout << "Name: " << workItem->getName() << std::endl;
+    std::cout << "Description: " << workItem->getDescription() << std::endl;
 
-    std::cout << "\nRequests:" << endl;
-    std::vector<string> requests = workItem->getRequests();
+    std::cout << "\nRequests:" << std::endl;
+    std::vector<std::string> requests = workItem->getRequests();
 
     if (requests.empty()) {
-        std::cout << "  No requests." << endl;
+        std::cout << "  No requests." << std::endl;
     } else {
         for (size_t i = 0; i < requests.size(); i++) {
-            std::cout << "  - " << requests[i] << endl;
+            std::cout << "  - " << requests[i] << std::endl;
         }
     }
 
     std::cout << "\nClient: ";
     if (workItem->getClient() != nullptr)
-        std::cout << workItem->getClient()->getName() << endl;
+        std::cout << workItem->getClient()->getName() << std::endl;
     else
-        std::cout << "No client assigned." << endl;
+        std::cout << "No client assigned." << std::endl;
 
     std::cout << "\nCurrent Status: "
-         << workItem->getState()->process() << endl;
+         << workItem->getState()->process() << std::endl;
 
-    std::cout << "======================================" << endl;
+    std::cout << "======================================" << std::endl;
 }
 
 void SystemProcessor::setOutputRegistry(OutputRegistry* outputRegistry) {

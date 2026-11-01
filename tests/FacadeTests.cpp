@@ -15,7 +15,7 @@
 #include "OutputComponent.h"
 #include "WorkOutput.h"
 
-using namespace std;
+
 
 namespace {
 
@@ -257,7 +257,7 @@ TEST_CASE("SystemProcessor produces output for multiple requests") {
 
     CHECK(processor.startWorkflow(&item));
 
-    vector<OutputComponent*> outputs = processor.produceOutput();
+    std::vector<OutputComponent*> outputs = processor.produceOutput();
 
     CHECK(outputs.size() == 2);
 

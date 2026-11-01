@@ -18,7 +18,6 @@ class Worker;
  */
 class WorkflowController {
 private:
-    WorkItem* workItem;           
     Command* addRequestCommand;   
     Command* start;               
     Command* assign;              

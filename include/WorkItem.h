@@ -10,6 +10,7 @@
 class WorkItemState;
 class WorkItemSnapshot;
 class Participant;
+class Client;
 
 /**
  * @brief Context in the State pattern, and Subject / ConcreteSubject in the
@@ -31,7 +32,7 @@ public:
     Client* getClient() const;
     
     std::vector<std::string> getRequests() const;
-    void addRequest(std::string request);
+    bool addRequest(std::string request);
 
     // State requests: each one forwards to the current state
     bool start();

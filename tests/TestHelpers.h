@@ -2,7 +2,7 @@
  * @file TestHelpers.h
  * @brief Shared test doubles for the unit tests (FacadeTests, ProxyTests, IteratorTests).
  *
- * This is a header, not a test file, so CMake's tests/*.cpp glob does not compile it on its own.
+ * This is a header, not a test file, so CMake's glob for the .cpp files in tests/ does not compile it on its own.
  * The test files include it with #include "TestHelpers.h", which the compiler finds in the
  * same folder as the test file.
  */
