@@ -5,7 +5,6 @@
 #include "WorkflowProcessor.h"
 
 class SystemProcessor;
-using namespace std;
 
 /**
  * @class ClientProcessor
@@ -30,14 +29,14 @@ public:
      * @return A vector containing the descriptions of the available outputs.
      *         Returns an empty vector if no system processor is available.
      */
-    vector<string> getAvailableOutputs();
+    std::vector<std::string> getAvailableOutputs() override;
 
     /**
      * @brief Forwards a request to the real processor.
      * @param request The request text.
      * @return true on success, false otherwise.
      */
-    bool addRequest(string request) override;
+    bool addRequest(std::string request) override;
 
     /**
      * @brief Forwards a cancel call to the real processor.

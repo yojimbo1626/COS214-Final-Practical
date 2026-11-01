@@ -3,8 +3,8 @@
 
 ClientProcessor::ClientProcessor(SystemProcessor* processor): systemProcessor(processor) {}
 
-vector<string> ClientProcessor::getAvailableOutputs() {
-    if (systemProcessor == nullptr) return vector<string>();
+std::vector<std::string> ClientProcessor::getAvailableOutputs() {
+    if (systemProcessor == nullptr) return std::vector<std::string>();
     return systemProcessor->getAvailableOutputs();
 }
 
