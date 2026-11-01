@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include "doctest.h"
+#include "doctest/doctest.h"
 
 #include "OutputRegistry.h"  
 #include "OutputRegistryIterator.h"

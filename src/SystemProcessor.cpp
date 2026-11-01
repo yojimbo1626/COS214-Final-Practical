@@ -7,6 +7,7 @@
 #include "OutputComponent.h"
 #include "Worker.h"
 #include "Client.h"
+#include "WorkItemState.h"
 
 SystemProcessor::SystemProcessor()
     : workItem(nullptr), workflowController(nullptr), outputRegistry(nullptr), workItemHistory(nullptr) {}
