@@ -1,0 +1,27 @@
+name: C++11 CI with doctest
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      # Explicitly enforces the C++11 standard for the build
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=11 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+    - name: Build
+      # Compiles your source files and the doctest executable
+      run: cmake --build ${{github.workspace}}/build --config Release -j $(nproc)
+
+    - name: Run Unit Tests
+      # CTest runs the tests and --output-on-failure prints the exact CHECK/REQUIRE failure
+      run: ctest --test-dir ${{github.workspace}}/build --output-on-failure -C Release

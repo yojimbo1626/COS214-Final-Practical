@@ -1,0 +1,202 @@
+/**
+ * @file Worker.cpp
+ * @brief For Obsever
+ * Worker plays two roles:
+ * - Context in the Strategy pattern: it holds one TaskExecutionStrategy at a
+ *   time, can swap it at runtime, and owns it (composition).
+ * - ConcreteObserver in the Observer pattern: it is notified when a WorkItem
+ *   it has been assigned to changes.
+ */
+
+#include "Worker.h"
+#include "Client.h"
+#include "OutputProducer.h"
+#include "WorkOutput.h"
+#include "WorkOutputFeature.h"
+#include "OutputRegistry.h"
+#include "SystemProcessor.h"
+#include "ClientProcessor.h"
+#include "WorkItem.h"
+#include "WorkItemHistory.h"
+#include "TaskExecutionStrategy.h"
+#include "RoleExecution.h"
+#include <iostream>
+
+/**
+ * @brief Creates a Worker that starts with the RoleExecution strategy, one of the concrete strategies.
+ * @param name The Worker's name.
+ * @todo Pass name to Participant(name) once Worker inherits from Participant.
+ */
+Worker::Worker(std::string name)
+    : Participant(name), producer(new OutputProducer), registry(nullptr), processor(nullptr), 
+      taskExecutionStrategy(new RoleExecution()) {}
+
+/**
+ * @brief Destroys the Worker and the strategy it owns.
+ */
+Worker::~Worker() {
+    delete producer;
+    delete taskExecutionStrategy;
+}
+
+void Worker::assignProcessor(SystemProcessor* processor) {
+    this->processor = processor;
+}
+
+ClientProcessor* Worker::createClientProcessor() {
+    // Proxy: the client only gets restricted access to the processor this worker is assigned to.
+    if (processor == nullptr) {
+        return nullptr;
+    }
+    return new ClientProcessor(processor);
+}
+
+bool Worker::assignWorkItem(Worker* worker) {
+    if (processor == nullptr || worker == nullptr || !processor->assignWorkItem(worker)) {
+        return false;
+    }
+    if (worker != this) {
+        processor = nullptr;   // the work item now belongs to the other worker
+    }
+    return true;
+}
+
+bool Worker::completeWorkItem() {
+    if (processor != nullptr) {
+        WorkItem* item = processor->workItem;
+        if (item != nullptr && item->getClient() != nullptr) {
+            Client* client = item->getClient();
+
+            // Strategy: the worker carries out the task in its own way. The strategy decides
+            // whether the item may be completed (e.g. RuleExecution refuses if a rule fails).
+            taskExecutionStrategy->execute(item);
+            if (item->process() != "Completed") {
+                return false;
+            }
+
+            // Factory Method + Prototype: create the requested outputs before the facade lets go of the item.
+            std::vector<OutputComponent*> outputs = processor->produceOutput();
+            if (!processor->completeWork()) {
+                for (size_t i = 0; i < outputs.size(); ++i) delete outputs[i];
+                return false;
+            }
+            client->receiveResults(outputs);
+            return true;
+        }
+    }
+    return false;
+}
+
+void Worker::undoLastAction() {
+    if (processor != nullptr && processor->workItem != nullptr && processor->workItemHistory != nullptr) {
+        processor->workItem->setSnapshot(processor->workItemHistory->undo());
+    }
+}
+
+void Worker::rejectWorkItem() {
+    if (processor != nullptr) processor->cancelWork();
+}
+
+std::string Worker::getWorkItemName() const {
+    return workItemName;
+}
+
+std::string Worker::getWorkItemDescription() const {
+    return workItemDescription;
+}
+
+void Worker::setWorkItemName(std::string workItemName) {
+    this->workItemName = workItemName;
+}
+
+void Worker::setWorkItemDescription(std::string workItemDescription) {
+    this->workItemDescription = workItemDescription;
+}
+
+void Worker::setRegistry(OutputRegistry* registry) {
+    this->registry = registry;
+}
+
+bool Worker::addToRegistry(std::string output, std::vector<std::string> features, bool client) {
+    if (registry == nullptr || (client && processor == nullptr))
+        return false;
+
+    OutputComponent* product = nullptr;
+
+    if (client) {
+        product = registry->createOutput(output);
+    }
+    else {
+        product = producer->produceOutput(output);
+    }
+    if (product == nullptr || dynamic_cast<WorkOutput*>(product) == nullptr) {
+        delete product;
+        return false;
+    }
+
+    for (size_t i = 0; i < features.size(); i++) {
+        if (client) {
+            OutputComponent* registeredFeature = registry->createOutput(features[i]);
+            if (registeredFeature == nullptr || dynamic_cast<OutputFeature*>(registeredFeature) == nullptr) {
+                delete registeredFeature;
+                delete product;
+                return false;
+            }
+            delete registeredFeature;
+        }
+        WorkOutputFeature* feature = new WorkOutputFeature(features[i]);
+        feature->add(product);
+        product = feature;
+    }
+    registry->registerOutput(product->printOutput(), product);
+    if (client) {
+        return processor->addRequest(product->printOutput());
+    }
+    return true;
+}
+
+
+/**
+ * @brief Returns the current execution strategy.
+ * @return Pointer to the current strategy. The Worker still owns it,
+ *         so the caller must not delete it.
+ */
+TaskExecutionStrategy* Worker::getTaskExecutionStrategy() const {
+    return taskExecutionStrategy;
+}
+
+/**
+ * @brief Replaces the current execution strategy and deletes the old one.
+ *
+ * Does nothing if newStrategy is null (a Worker must always have a strategy)
+ * or if it is already the current strategy.
+ *
+ * @param newStrategy The new strategy. The Worker takes ownership of it.
+ */
+void Worker::setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy) {
+    if (newStrategy == nullptr || newStrategy == taskExecutionStrategy) {
+        return;
+    }
+    delete taskExecutionStrategy;
+    taskExecutionStrategy = newStrategy;
+}
+
+/**
+ * @brief Receives a pushed update from a WorkItem this Worker observes.
+ *
+ * Push model: the WorkItem sends all the information in the message, so
+ * the Worker never has to query the WorkItem.
+ *
+ * @param update The message pushed by the WorkItem.
+ */
+void Worker::receiveUpdate(std::string update) {
+    std::cout << "[" << toString() << "] received update: " << update << std::endl;
+}
+
+/**
+ * @brief Describes this Worker.
+ * @return A string in the form "Worker #<id> (<name>)".
+ */
+std::string Worker::toString() {
+    return "Worker #" + std::to_string(getId()) + " (" + getName() + ")";
+}
