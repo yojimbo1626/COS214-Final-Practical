@@ -17,6 +17,7 @@ public:
     WorkItem(std::string name, std::string description);
     WorkItem(const WorkItem& workItem);
     ~WorkItem();
+    WorkItem& operator=(const WorkItem&) = delete;
 
     std::string getName() const;
     std::string getDescription() const;

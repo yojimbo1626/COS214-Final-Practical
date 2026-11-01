@@ -13,6 +13,8 @@ class Worker : public Participant {
 public:
     explicit Worker(std::string name);
     ~Worker();
+    Worker(const Worker&) = delete;
+    Worker& operator=(const Worker&) = delete;
 
     TaskExecutionStrategy* getTaskExecutionStrategy() const;
     void setTaskExecutionStrategy(TaskExecutionStrategy* newStrategy); // deletes the old one
