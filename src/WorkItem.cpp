@@ -6,7 +6,7 @@
  * @return A pointer to the newly created WorkItemSnapshot.
  */
 WorkItemSnapshot* WorkItem::createSnapshot() {
-    return new WorkItemSnapshot(requests, state);
+    return new WorkItemSnapshot(requests, state->clone());
 }
 
 /**
@@ -14,6 +14,8 @@ WorkItemSnapshot* WorkItem::createSnapshot() {
  * @param snapshot Pointer to the snapshot containing the data to restore.
  */
 void WorkItem::setSnapshot(WorkItemSnapshot* snapshot) {
+    if (snapshot == nullptr) return;
     requests = snapshot->requests;
     setState(snapshot->state);
+    delete snapshot;
 }
